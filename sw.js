@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pink-desk-v1';
+const CACHE_NAME = 'pink-desk-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -29,7 +29,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 拦截请求：缓存优先，离线也能访问
+// 拦截请求：网络优先，缓存兜底，确保资源能及时更新
 self.addEventListener('fetch', event => {
   const { request } = event;
   // 只处理 GET 请求
@@ -38,23 +38,24 @@ self.addEventListener('fetch', event => {
   if (!request.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request)
-        .then(response => {
-          // 缓存新资源
-          if (response && response.status === 200 && response.type === 'basic') {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => {
+    fetch(request)
+      .then(response => {
+        // 网络成功：缓存新资源后返回
+        if (response && response.status === 200 && response.type === 'basic') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() => {
+        // 网络失败：回退到缓存
+        return caches.match(request).then(cached => {
+          if (cached) return cached;
           // 离线且缓存中没有时，返回首页兜底
           if (request.mode === 'navigate') {
             return caches.match('./index.html');
           }
         });
-    })
+      })
   );
 });

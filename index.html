@@ -163,14 +163,6 @@ body::after{
   font-size:34px;line-height:1;
 }
 .avatar-placeholder.hide{display:none;}
-.avatar-edit-badge{
-  position:absolute;bottom:-2px;right:-2px;
-  width:22px;height:22px;border-radius:50%;
-  background:linear-gradient(135deg,#ff7ab8,#ff4ea1);
-  color:#fff;font-size:11px;
-  display:flex;align-items:center;justify-content:center;
-  border:2px solid #fff;box-shadow:var(--shadow-soft);
-}
 .username-wrap{flex:1;min-width:0;}
 .username-text{
   font-size:18px;font-weight:700;color:var(--pink-600);
@@ -443,21 +435,6 @@ body::after{
 .today-detail-item .td-duration{color:var(--pink-500);font-weight:600;font-size:14px;}
 .today-detail-item .td-time{font-size:11px;color:var(--text-soft);}
 .today-detail-item .del-btn{width:24px;height:24px;font-size:12px;}
-.today-summary{
-  display:flex;justify-content:space-around;padding:14px;margin-top:12px;
-  background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);
-}
-.today-summary .item{text-align:center;}
-.today-summary .num{font-size:22px;font-weight:700;color:var(--pink-500);}
-.today-summary .lbl{font-size:11px;color:var(--text-soft);margin-top:2px;}
-.week-chart{display:flex;align-items:flex-end;justify-content:space-between;height:100px;margin-top:14px;gap:6px;}
-.week-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
-.week-bar{
-  width:100%;max-width:24px;background:linear-gradient(180deg,#ff7ab8,#ff4ea1);
-  border-radius:6px 6px 0 0;min-height:4px;transition:height 0.5s;
-}
-.week-bar-wrap .day{font-size:10px;color:var(--text-soft);}
-.week-bar-wrap.today .day{color:var(--pink-600);font-weight:700;}
 
 /* 训练感受选择器 */
 .feeling-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
@@ -649,7 +626,6 @@ body::after{
     <div class="avatar-wrap" id="avatarWrap">
       <img class="avatar-img" id="avatarImg" alt="头像">
       <div class="avatar-placeholder" id="avatarPlaceholder">👧</div>
-      <div class="avatar-edit-badge">📷</div>
     </div>
     <div class="username-wrap">
       <div class="username-text" id="usernameText">莹莹</div>
@@ -839,25 +815,28 @@ body::after{
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="icon">📈</span>今日总结</div>
-      <div class="today-summary" id="todaySummary">
-        <div class="item"><div class="num" id="todayCount">0</div><div class="lbl">已打卡</div></div>
-        <div class="item"><div class="num" id="todayMin">0</div><div class="lbl">运动分钟</div></div>
-        <div class="item"><div class="num" id="streak">0</div><div class="lbl">连续天数</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🗓️</span>本周打卡</div>
-      <div class="week-chart" id="weekChart"></div>
-    </div>
-
-    <div class="card">
       <div class="card-title"><span class="icon">📆</span>运动日历</div>
       <div id="sportCalendar"></div>
       <div class="cal-legend">
         <div class="item"><div class="swatch" style="background:rgba(200,155,123,0.2);"></div>有运动</div>
         <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.15);border:1px solid var(--pink-300);"></div>今天</div>
+      </div>
+      <button class="btn btn-soft btn-block" id="toggleManualSportBtn" style="margin-top:10px;">✍️ 手动补录打卡</button>
+      <div id="manualSportPanel" style="display:none;margin-top:10px;padding:12px;background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);">
+        <div style="font-size:13px;font-weight:600;color:var(--pink-600);margin-bottom:8px;">补录运动打卡记录</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <input type="date" id="manualSportDate" style="flex:1;min-width:130px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+          <input type="number" id="manualSportDuration" placeholder="时长(分钟)" min="1" max="600" style="flex:1;min-width:100px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        </div>
+        <select id="manualSportSelect" style="width:100%;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;margin-bottom:8px;background:#fff;"></select>
+        <label style="font-size:12px;color:var(--text-soft);">训练感受</label>
+        <div class="feeling-selector" id="manualFeelingSelector">
+          <div class="feeling-opt selected" data-f="轻松">轻松</div>
+          <div class="feeling-opt" data-f="适中">适中</div>
+          <div class="feeling-opt" data-f="累">累</div>
+          <div class="feeling-opt" data-f="很累">很累</div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addManualSportBtn" style="margin-top:10px;">添加打卡记录</button>
       </div>
     </div>
 
@@ -1760,6 +1739,75 @@ function calSportNext(){
   renderSportCalendar();
 }
 
+// 运动日历手动补录
+let manualFeeling = '轻松';
+function initManualSportPanel(){
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,'0');
+  const d = String(today.getDate()).padStart(2,'0');
+  const dateInput = document.getElementById('manualSportDate');
+  if(dateInput && !dateInput.value) dateInput.value = `${y}-${m}-${d}`;
+  const sel = document.getElementById('manualSportSelect');
+  if(sel && !sel.options.length){
+    let first = true;
+    Object.entries(SPORT_DATA).forEach(([cat, items])=>{
+      const og = document.createElement('optgroup');
+      og.label = cat;
+      items.forEach(s=>{
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.emoji} ${s.name}（建议${s.min}分钟·${s.calPerMin}kcal/分）`;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+  }
+}
+function toggleManualSportPanel(){
+  const panel = document.getElementById('manualSportPanel');
+  const btn = document.getElementById('toggleManualSportBtn');
+  if(!panel) return;
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '✍️ 收起补录' : '✍️ 手动补录打卡';
+  if(open){
+    initManualSportPanel();
+    document.querySelectorAll('#manualFeelingSelector .feeling-opt').forEach(o=>{
+      o.onclick = ()=>{ manualFeeling = o.dataset.f; document.querySelectorAll('#manualFeelingSelector .feeling-opt').forEach(x=>x.classList.toggle('selected', x.dataset.f===manualFeeling)); };
+    });
+  }
+}
+function addManualSport(){
+  const dateStr = document.getElementById('manualSportDate').value;
+  const duration = parseInt(document.getElementById('manualSportDuration').value);
+  const sportId = document.getElementById('manualSportSelect').value;
+  if(!dateStr){ toast('请选择日期'); return; }
+  if(!duration || duration < 1){ toast('请输入有效时长'); return; }
+  if(!sportId){ toast('请选择运动项目'); return; }
+  const s = getSportInfo(sportId);
+  if(!s){ toast('运动项目无效'); return; }
+  const record = {
+    id: sportId,
+    duration: duration,
+    calories: calcCalories(sportId, duration),
+    feeling: manualFeeling,
+    startTime: 0,
+    endTime: new Date(dateStr+'T12:00:00').getTime()
+  };
+  const log = DB.get('sportLog',{});
+  const key = new Date(dateStr+'T12:00:00').toDateString();
+  if(!log[key]) log[key] = [];
+  log[key].push(record);
+  DB.set('sportLog', log);
+  toast(`${s.name} 补录成功！${duration}分钟 ${record.calories}kcal ✅`);
+  document.getElementById('manualSportDuration').value = '';
+  renderSportCalendar();
+  renderSportSummary();
+  renderTodayDetail();
+  renderHome();
+}
+
 function toggleSymptom(s){
   const el = document.querySelector(`.symptom-tag[data-s="${s}"]`);
   el.classList.toggle('active');
@@ -2041,21 +2089,6 @@ function delTodayRecord(idx){
 }
 function renderSportSummary(){
   const log = DB.get('sportLog',{});
-  const todayRecords = getTodayRecords(log);
-  const todayCount = todayRecords.length;
-  const totalMin = todayRecords.reduce((sum,r)=>sum+r.duration,0);
-  document.getElementById('todayCount').textContent = todayCount;
-  document.getElementById('todayMin').textContent = totalMin;
-  let streak = 0;
-  const d = new Date();
-  while(true){ const key = d.toDateString(); if(log[key] && log[key].length>0){ streak++; d.setDate(d.getDate()-1); } else break; }
-  document.getElementById('streak').textContent = streak;
-  const wc = document.getElementById('weekChart');
-  const days = [];
-  const labels = ['日','一','二','三','四','五','六'];
-  for(let i=6;i>=0;i--){ const dd = new Date(); dd.setDate(dd.getDate()-i); const key = dd.toDateString(); const cnt = (log[key]||[]).length; days.push({cnt, label:labels[dd.getDay()], isToday:i===0}); }
-  const max = Math.max(1, ...days.map(d=>d.cnt));
-  wc.innerHTML = days.map(d=>`<div class="week-bar-wrap ${d.isToday?'today':''}"><div style="flex:1;display:flex;align-items:flex-end;width:100%;justify-content:center;"><div class="week-bar" style="height:${d.cnt/max*70+4}px"></div></div><div class="day">${d.label}</div></div>`).join('');
   let totalDays=0, totalItems=0, totalMinAll=0, totalCalAll=0;
   Object.entries(log).forEach(([k,v])=>{ if(v.length){ totalDays++; totalItems+=v.length; v.forEach(r=>{ const nr=normalizeSportRecord(r); totalMinAll+=nr.duration; totalCalAll+=nr.calories; }); } });
   document.getElementById('sportStats').innerHTML = `<div>📅 累计打卡：<b style="color:var(--pink-600);">${totalDays}</b> 天</div><div>✅ 累计项目：<b style="color:var(--pink-600);">${totalItems}</b> 次</div><div>⏱️ 累计时长：<b style="color:var(--pink-600);">${totalMinAll}</b> 分钟</div><div>🔥 累计消耗：<b style="color:var(--pink-600);">${totalCalAll}</b> kcal</div><div style="margin-top:8px;color:var(--text-soft);font-size:12px;">${getSportBadge(totalItems)}</div>`;
@@ -2530,6 +2563,8 @@ document.getElementById('addManualPeriodBtn').onclick = addManualPeriod;
 document.getElementById('genPeriodReportBtn').onclick = renderPeriodMonthlyReport;
 document.getElementById('clearAllPeriodBtn').onclick = clearAllPeriod;
 document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
+document.getElementById('toggleManualSportBtn').onclick = toggleManualSportPanel;
+document.getElementById('addManualSportBtn').onclick = addManualSport;
 document.getElementById('clearAllSportBtn').onclick = clearAllSport;
 document.getElementById('genSportReportBtn').onclick = renderSportMonthlyReport;
 document.getElementById('querySportHistoryBtn').onclick = renderSportHistory;

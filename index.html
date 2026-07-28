@@ -2350,6 +2350,16 @@ function dateStamp(d){
 }
 // 通用下载：优先用 a[href=data:url][download]，WebView 的 DownloadListener 会拦截 data: URL
 function triggerDownload(content, filename){
+  // 优先调用原生接口（Android WebView）
+  if(typeof AndroidFileSaver !== 'undefined' && AndroidFileSaver.isAvailable()){
+    try {
+      // 转 base64
+      const b64 = btoa(unescape(encodeURIComponent(content)));
+      AndroidFileSaver.save(filename, b64);
+      return;
+    } catch(e){ /* 回退到 data URL */ }
+  }
+  // 浏览器环境：用 data URL 下载
   const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
   const a = document.createElement('a');
   a.href = dataUrl;

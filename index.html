@@ -2343,6 +2343,22 @@ function fmtDateTime(ts){
   const p = n => String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+function dateStamp(d){
+  d = d || new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
+}
+// 通用下载：优先用 a[href=data:url][download]，WebView 的 DownloadListener 会拦截 data: URL
+function triggerDownload(content, filename){
+  const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 function renderDataPage(){
   // 备份历史
   renderBackupHistory();
@@ -2407,18 +2423,7 @@ function backupNow(download){
   DB.set('autoBackup', cfg);
 
   if(download){
-    // 触发下载
-    const blob = new Blob([json], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const d = new Date();
-    const p = n => String(n).padStart(2,'0');
-    a.download = `莹莹工作台备份_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    triggerDownload(json, `莹莹工作台备份_${dateStamp()}.json`);
     toast(`备份成功并开始下载（${formatBytes(size)}）📦`);
   } else {
     toast(`自动备份完成（${formatBytes(size)}）✅`);
@@ -2533,15 +2538,9 @@ function downloadLocalBackup(idx){
   const list = getLocalBackups();
   const b = list[idx];
   if(!b) return;
-  const blob = new Blob([b.data], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
   const d = new Date(b.time);
   const p = n => String(n).padStart(2,'0');
-  a.download = `莹莹工作台备份_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  triggerDownload(b.data, `莹莹工作台备份_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`);
   toast('开始下载备份文件 📦');
 }
 function restoreLocalBackup(idx){

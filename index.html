@@ -444,6 +444,14 @@ body::after{
 }
 .feeling-opt.selected{background:var(--pink-400);color:#fff;border-color:var(--pink-400);}
 
+/* 开关 switch */
+.switch input:checked + .slider-track{background:var(--pink-400);}
+.slider-track::before{
+  content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+.switch input:checked + .slider-track::before{transform:translateX(20px);}
+
 /* 经期运动提醒 */
 .period-sport-tip{
   background:linear-gradient(135deg,#fff0f6,#fff5fa);border-radius:var(--radius-sm);
@@ -657,6 +665,13 @@ body::after{
     <div class="nav-text">
       <div class="nav-name">我的衣柜</div>
       <div class="nav-desc">衣物管理 · 搭配收藏</div>
+    </div>
+  </div>
+  <div class="nav-item" data-page="data">
+    <div class="nav-icon">💾</div>
+    <div class="nav-text">
+      <div class="nav-name">数据管理</div>
+      <div class="nav-desc">备份 · 还原 · 自动备份</div>
     </div>
   </div>
   <div class="drawer-footer">
@@ -935,6 +950,82 @@ body::after{
 
 </div>
 
+<!-- 数据管理页 -->
+<div class="page" id="page-data">
+  <div class="page-header">
+    <h1>数据管理 💾</h1>
+    <p>备份 · 还原 · 自动备份 · 安全私密</p>
+  </div>
+
+  <!-- 数据概览 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span>数据概览</div>
+    <div id="dataOverview" style="font-size:13px;line-height:1.9;"></div>
+  </div>
+
+  <!-- 手动备份 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📤</span>数据备份</div>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">将所有数据（经期、运动、衣柜、搭配、资料等）导出为一个 JSON 备份文件，可保存到手机或电脑。</p>
+    <button class="btn btn-primary btn-block" id="backupNowBtn">📦 立即备份并下载</button>
+    <div id="backupHistory" style="margin-top:12px;font-size:12px;color:var(--text-soft);"></div>
+  </div>
+
+  <!-- 数据还原 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📥</span>数据还原</div>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">选择之前导出的备份文件，恢复全部数据。<b style="color:#e6337e;">注意：还原会覆盖当前数据。</b></p>
+    <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
+    <button class="btn btn-soft btn-block" id="restorePickBtn">📂 选择备份文件</button>
+    <div id="restorePreview" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- 自动备份 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⏰</span>定期自动备份</div>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">开启后，应用会在设定间隔自动生成备份并存到本地。</p>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <label style="font-size:13px;flex-shrink:0;">自动备份</label>
+      <label class="switch" style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+        <input type="checkbox" id="autoBackupToggle" style="opacity:0;width:0;height:0;">
+        <span class="slider-track" style="position:absolute;cursor:pointer;inset:0;background:#e0d0d8;border-radius:24px;transition:0.3s;"></span>
+      </label>
+      <span id="autoBackupStatus" style="font-size:12px;color:var(--text-soft);">已关闭</span>
+    </div>
+    <div id="autoBackupConfig" style="display:none;">
+      <label style="font-size:12px;color:var(--text-soft);">备份频率</label>
+      <div class="feeling-selector" id="autoBackupFreqSel" style="margin-top:6px;margin-bottom:12px;">
+        <div class="feeling-opt" data-freq="12">每 12 小时</div>
+        <div class="feeling-opt selected" data-freq="24">每 24 小时</div>
+        <div class="feeling-opt" data-freq="48">每 48 小时</div>
+        <div class="feeling-opt" data-freq="custom">自定义</div>
+      </div>
+      <div id="customFreqBox" style="display:none;margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--text-soft);">自定义间隔（小时）</label>
+        <input type="number" id="customFreqInput" min="1" max="720" value="6" style="width:100%;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;margin-top:4px;">
+      </div>
+      <label style="font-size:12px;color:var(--text-soft);">备份存储位置</label>
+      <div style="display:flex;gap:8px;margin-top:4px;margin-bottom:8px;">
+        <select id="backupLocationSel" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;background:#fff;">
+          <option value="local">本机内存（自动管理）</option>
+          <option value="download">每次下载到设备</option>
+        </select>
+      </div>
+      <p style="font-size:11px;color:var(--text-soft);background:rgba(255,200,221,0.2);padding:8px 10px;border-radius:8px;margin-top:6px;">
+        💡 说明：「本机内存」备份保存在浏览器本地，换设备或清缓存会丢失；「每次下载」会在每次自动备份时下载一个 JSON 文件到手机下载目录（需保持应用在前台）。
+      </p>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-soft);" id="autoBackupInfo"></div>
+    </div>
+  </div>
+
+  <!-- 本地备份列表 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🗂️</span>本地备份记录</div>
+    <div id="localBackupList" style="font-size:13px;"></div>
+    <button class="btn btn-danger btn-block" id="clearLocalBackupsBtn" style="margin-top:8px;display:none;">🗑 清空本地备份</button>
+  </div>
+</div>
+
 <!-- 搭配详情弹窗 -->
 <div class="modal-mask" id="matchModal">
   <div class="modal">
@@ -1135,6 +1226,7 @@ function showPage(name){
   if(name==='period') renderPeriod();
   if(name==='sport') renderSport();
   if(name==='wardrobe') renderWardrobe();
+  if(name==='data') renderDataPage();
 }
 function goPage(name){ showPage(name); }
 function openDrawer(){ document.getElementById('drawer').classList.add('show'); document.getElementById('mask').classList.add('show'); }
@@ -2200,6 +2292,320 @@ const CLOTH_CATS = [
 let currentClothCat = 'top';
 let pendingUploadImgs = [];
 
+// ========== 数据管理模块 ==========
+const DATA_KEYS = ['userProfile','period','symptoms','sportLog','clothes','matches','favs','lastOutfitScore','memos','autoBackup'];
+function getAllData(){
+  const data = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith('pinkDesk_')){
+      try{ data[k.substring(9)] = JSON.parse(localStorage.getItem(k)); }catch(e){}
+    }
+  }
+  return data;
+}
+function restoreAllData(data){
+  // 清除现有 pinkDesk_ 数据
+  const toRemove = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith('pinkDesk_')) toRemove.push(k);
+  }
+  toRemove.forEach(k=>localStorage.removeItem(k));
+  // 写入备份数据
+  Object.keys(data).forEach(k=>{
+    if(DATA_KEYS.includes(k) || true){ // 接受所有 pinkDesk 前缀的数据
+      localStorage.setItem('pinkDesk_'+k, JSON.stringify(data[k]));
+    }
+  });
+}
+function getLocalBackups(){
+  return DB.get('localBackups', []);
+}
+function addLocalBackup(backupObj){
+  const list = getLocalBackups();
+  list.unshift(backupObj);
+  // 最多保留 20 份本地备份
+  if(list.length > 20) list.length = 20;
+  DB.set('localBackups', list);
+}
+function deleteLocalBackup(idx){
+  const list = getLocalBackups();
+  list.splice(idx, 1);
+  DB.set('localBackups', list);
+}
+function formatBytes(n){
+  if(n < 1024) return n + ' B';
+  if(n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+  return (n/1024/1024).toFixed(2) + ' MB';
+}
+function fmtDateTime(ts){
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function renderDataPage(){
+  // 数据概览
+  const allData = getAllData();
+  const keys = Object.keys(allData);
+  let totalSize = 0;
+  keys.forEach(k=>{ totalSize += (JSON.stringify(allData[k])||'').length; });
+  const overview = $('dataOverview');
+  if(keys.length === 0){
+    overview.innerHTML = '<div style="color:var(--text-soft);">暂无数据</div>';
+  } else {
+    overview.innerHTML = keys.map(k=>{
+      const size = (JSON.stringify(allData[k])||'').length;
+      const label = {
+        userProfile:'用户资料', period:'经期记录', symptoms:'经期症状',
+        sportLog:'运动打卡', clothes:'衣物', matches:'搭配',
+        favs:'收藏', lastOutfitScore:'最近评分', memos:'备忘录',
+        localBackups:'本地备份索引', autoBackup:'自动备份配置'
+      }[k] || k;
+      return `<div>📁 ${label}：<b style="color:var(--pink-600);">${formatBytes(size)}</b></div>`;
+    }).join('') + `<div style="margin-top:6px;color:var(--text-soft);">合计 ${keys.length} 项，约 ${formatBytes(totalSize)}</div>`;
+  }
+
+  // 备份历史
+  renderBackupHistory();
+
+  // 还原预览清空
+  $('restorePreview').innerHTML = '';
+
+  // 自动备份配置
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  $('autoBackupToggle').checked = cfg.enabled;
+  updateAutoBackupStatus();
+  if(cfg.enabled){
+    $('autoBackupConfig').style.display = 'block';
+    document.querySelectorAll('#autoBackupFreqSel .feeling-opt').forEach(o=>{
+      o.classList.toggle('selected', (cfg.freq==='custom' ? 'custom' : parseInt(o.dataset.freq)) === (cfg.freq==='custom'?'custom':cfg.freq));
+    });
+    if(cfg.freq === 'custom'){
+      $('customFreqBox').style.display = 'block';
+      $('customFreqInput').value = cfg.custom || 6;
+    } else {
+      $('customFreqBox').style.display = 'none';
+    }
+    $('backupLocationSel').value = cfg.location || 'local';
+    updateAutoBackupInfo();
+  }
+
+  // 本地备份列表
+  renderLocalBackupList();
+}
+function renderBackupHistory(){
+  const cfg = DB.get('autoBackup', {enabled:false, lastBackup:0});
+  const el = $('backupHistory');
+  let html = '';
+  if(cfg.lastBackup){
+    html += `<div>🕐 上次自动备份：${fmtDateTime(cfg.lastBackup)}</div>`;
+  }
+  const localList = getLocalBackups();
+  html += `<div>🗂️ 本地备份：${localList.length} 份</div>`;
+  el.innerHTML = html;
+}
+function backupNow(download){
+  const allData = getAllData();
+  const backup = {
+    version: '1.0',
+    createTime: Date.now(),
+    data: allData
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const size = json.length;
+  // 存入本地备份列表
+  const backupObj = {
+    id: Date.now(),
+    time: backup.createTime,
+    size: size,
+    type: download ? '手动' : '自动',
+    data: json
+  };
+  addLocalBackup(backupObj);
+  // 更新自动备份时间
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  cfg.lastBackup = backup.createTime;
+  DB.set('autoBackup', cfg);
+
+  if(download){
+    // 触发下载
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    a.download = `莹莹工作台备份_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast(`备份成功并开始下载（${formatBytes(size)}）📦`);
+  } else {
+    toast(`自动备份完成（${formatBytes(size)}）✅`);
+  }
+  renderBackupHistory();
+  renderLocalBackupList();
+  renderDataPage();
+}
+function pickRestoreFile(){
+  $('restoreFileInput').click();
+}
+function handleRestoreFile(file){
+  if(!file){ return; }
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const backup = JSON.parse(e.target.result);
+      if(!backup.data || !backup.createTime){
+        $('restorePreview').innerHTML = '<div style="color:#e6337e;">❌ 文件格式不正确，不是有效的备份文件</div>';
+        return;
+      }
+      const dataKeys = Object.keys(backup.data);
+      let totalSize = 0;
+      dataKeys.forEach(k=>{ totalSize += (JSON.stringify(backup.data[k])||'').length; });
+      $('restorePreview').innerHTML = `
+        <div style="background:rgba(255,200,221,0.15);padding:10px;border-radius:8px;font-size:12px;">
+          <div>✅ 识别到备份文件</div>
+          <div>📅 备份时间：${fmtDateTime(backup.createTime)}</div>
+          <div>📊 包含数据：${dataKeys.length} 项，约 ${formatBytes(totalSize)}</div>
+          <div style="margin-top:8px;color:#e6337e;font-weight:600;">⚠️ 还原将覆盖当前全部数据，确定继续吗？</div>
+          <button class="btn btn-primary btn-block" id="confirmRestoreBtn" style="margin-top:8px;">确认还原</button>
+        </div>`;
+      $('confirmRestoreBtn').onclick = ()=>{
+        restoreAllData(backup.data);
+        toast('数据还原成功！正在刷新... ✅');
+        $('restorePreview').innerHTML = '<div style="color:var(--pink-600);">✅ 还原成功，请重新打开应用以加载数据</div>';
+        setTimeout(()=>{ location.reload(); }, 1500);
+      };
+    }catch(err){
+      $('restorePreview').innerHTML = '<div style="color:#e6337e;">❌ 无法解析文件：'+err.message+'</div>';
+    }
+  };
+  reader.readAsText(file);
+}
+function updateAutoBackupStatus(){
+  const enabled = $('autoBackupToggle').checked;
+  $('autoBackupStatus').textContent = enabled ? '已开启' : '已关闭';
+  $('autoBackupConfig').style.display = enabled ? 'block' : 'none';
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  cfg.enabled = enabled;
+  DB.set('autoBackup', cfg);
+  if(enabled){
+    updateAutoBackupInfo();
+  }
+}
+function updateAutoBackupInfo(){
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  const hours = cfg.freq === 'custom' ? (parseInt(cfg.custom)||6) : (cfg.freq==='12'?12:cfg.freq==='48'?48:24);
+  const next = cfg.lastBackup + hours * 3600 * 1000;
+  const now = Date.now();
+  let info = `间隔：每 ${hours} 小时 | 存到：${cfg.location==='local'?'本机内存':'下载目录'}`;
+  if(cfg.lastBackup){
+    if(now >= next){
+      info += ` | 待备份（已到时间）`;
+    } else {
+      const remain = Math.ceil((next - now) / 60000);
+      info += ` | 下次约 ${remain} 分钟后`;
+    }
+  } else {
+    info += ` | 首次将在开启后立即执行`;
+  }
+  $('autoBackupInfo').innerHTML = info;
+}
+function saveAutoBackupConfig(){
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  const selected = document.querySelector('#autoBackupFreqSel .feeling-opt.selected');
+  if(selected){
+    if(selected.dataset.freq === 'custom'){
+      cfg.freq = 'custom';
+      cfg.custom = Math.max(1, parseInt($('customFreqInput').value) || 6);
+    } else {
+      cfg.freq = parseInt(selected.dataset.freq);
+    }
+  }
+  cfg.location = $('backupLocationSel').value;
+  DB.set('autoBackup', cfg);
+  toast('自动备份设置已保存 ✅');
+  updateAutoBackupInfo();
+}
+function renderLocalBackupList(){
+  const list = getLocalBackups();
+  const el = $('localBackupList');
+  const clearBtn = $('clearLocalBackupsBtn');
+  if(list.length === 0){
+    el.innerHTML = '<div class="empty">暂无本地备份记录</div>';
+    clearBtn.style.display = 'none';
+    return;
+  }
+  clearBtn.style.display = 'block';
+  el.innerHTML = list.map((b,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--pink-50);">
+      <div style="flex:1;">
+        <div style="font-weight:600;color:var(--pink-600);">${fmtDateTime(b.time)}</div>
+        <div style="font-size:11px;color:var(--text-soft);">${b.type}备份 · ${formatBytes(b.size)}</div>
+      </div>
+      <button class="btn btn-soft" style="padding:4px 10px;font-size:11px;" onclick="downloadLocalBackup(${i})">下载</button>
+      <button class="btn btn-soft" style="padding:4px 10px;font-size:11px;" onclick="restoreLocalBackup(${i})">还原</button>
+      <button class="del-btn" onclick="deleteLocalBackupUI(${i})" title="删除">✕</button>
+    </div>`).join('');
+}
+function downloadLocalBackup(idx){
+  const list = getLocalBackups();
+  const b = list[idx];
+  if(!b) return;
+  const blob = new Blob([b.data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const d = new Date(b.time);
+  const p = n => String(n).padStart(2,'0');
+  a.download = `莹莹工作台备份_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('开始下载备份文件 📦');
+}
+function restoreLocalBackup(idx){
+  const list = getLocalBackups();
+  const b = list[idx];
+  if(!b) return;
+  if(!confirm(`确定还原 ${fmtDateTime(b.time)} 的备份吗？当前数据将被覆盖！`)) return;
+  try{
+    const backup = JSON.parse(b.data);
+    restoreAllData(backup.data);
+    toast('还原成功！正在刷新... ✅');
+    setTimeout(()=>{ location.reload(); }, 1200);
+  }catch(err){
+    toast('还原失败：'+err.message);
+  }
+}
+function deleteLocalBackupUI(idx){
+  if(!confirm('确定删除这份本地备份吗？')) return;
+  deleteLocalBackup(idx);
+  renderLocalBackupList();
+  renderBackupHistory();
+  toast('已删除 💫');
+}
+function clearLocalBackups(){
+  if(!confirm('确定清空所有本地备份吗？此操作不可恢复！')) return;
+  DB.set('localBackups', []);
+  renderLocalBackupList();
+  renderBackupHistory();
+  toast('已清空本地备份 🗑');
+}
+// 自动备份定时检查（每 5 分钟检查一次）
+function checkAutoBackup(){
+  const cfg = DB.get('autoBackup', {enabled:false, freq:24, custom:6, location:'local', lastBackup:0});
+  if(!cfg.enabled) return;
+  const hours = cfg.freq === 'custom' ? (parseInt(cfg.custom)||6) : (cfg.freq==='12'?12:cfg.freq==='48'?48:24);
+  const interval = hours * 3600 * 1000;
+  const now = Date.now();
+  if(now - cfg.lastBackup >= interval){
+    backupNow(cfg.location === 'download');
+  }
+}
+
 // ============ 工具 ============
 function $(id){return document.getElementById(id);}
 function toast(msg){
@@ -2568,6 +2974,26 @@ document.getElementById('addManualSportBtn').onclick = addManualSport;
 document.getElementById('clearAllSportBtn').onclick = clearAllSport;
 document.getElementById('genSportReportBtn').onclick = renderSportMonthlyReport;
 document.getElementById('querySportHistoryBtn').onclick = renderSportHistory;
+
+// 数据管理事件绑定
+document.getElementById('backupNowBtn').onclick = ()=>backupNow(true);
+document.getElementById('restorePickBtn').onclick = pickRestoreFile;
+document.getElementById('restoreFileInput').onchange = e=>handleRestoreFile(e.target.files[0]);
+document.getElementById('autoBackupToggle').onchange = updateAutoBackupStatus;
+document.getElementById('clearLocalBackupsBtn').onclick = clearLocalBackups;
+document.querySelectorAll('#autoBackupFreqSel .feeling-opt').forEach(o=>{
+  o.onclick = ()=>{
+    document.querySelectorAll('#autoBackupFreqSel .feeling-opt').forEach(x=>x.classList.remove('selected'));
+    o.classList.add('selected');
+    $('customFreqBox').style.display = o.dataset.freq === 'custom' ? 'block' : 'none';
+    saveAutoBackupConfig();
+  };
+});
+document.getElementById('customFreqInput').onchange = saveAutoBackupConfig;
+document.getElementById('backupLocationSel').onchange = saveAutoBackupConfig;
+// 启动时检查自动备份
+checkAutoBackup();
+setInterval(checkAutoBackup, 5 * 60 * 1000); // 每 5 分钟检查一次
 
 // 用户资料区事件绑定
 (function(){

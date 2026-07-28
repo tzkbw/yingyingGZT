@@ -957,27 +957,26 @@ body::after{
     <p>备份 · 还原 · 自动备份 · 安全私密</p>
   </div>
 
-  <!-- 数据概览 -->
+  <!-- 备份与还原 -->
   <div class="card">
-    <div class="card-title"><span class="icon">📊</span>数据概览</div>
-    <div id="dataOverview" style="font-size:13px;line-height:1.9;"></div>
-  </div>
-
-  <!-- 手动备份 -->
-  <div class="card">
-    <div class="card-title"><span class="icon">📤</span>数据备份</div>
-    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">将所有数据（经期、运动、衣柜、搭配、资料等）导出为一个 JSON 备份文件，可保存到手机或电脑。</p>
-    <button class="btn btn-primary btn-block" id="backupNowBtn">📦 立即备份并下载</button>
-    <div id="backupHistory" style="margin-top:12px;font-size:12px;color:var(--text-soft);"></div>
-  </div>
-
-  <!-- 数据还原 -->
-  <div class="card">
-    <div class="card-title"><span class="icon">📥</span>数据还原</div>
-    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">选择之前导出的备份文件，恢复全部数据。<b style="color:#e6337e;">注意：还原会覆盖当前数据。</b></p>
-    <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
-    <button class="btn btn-soft btn-block" id="restorePickBtn">📂 选择备份文件</button>
+    <div class="card-title"><span class="icon">🔄</span>备份与还原</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <!-- 备份 -->
+      <div style="background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-size:15px;font-weight:700;color:var(--pink-600);margin-bottom:4px;">📤 数据备份</div>
+        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;">导出全部数据为 JSON 文件</div>
+        <button class="btn btn-primary btn-block" id="backupNowBtn" style="font-size:13px;">📦 立即备份</button>
+      </div>
+      <!-- 还原 -->
+      <div style="background:linear-gradient(135deg,#f0f7ff,#e4f0ff);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-size:15px;font-weight:700;color:#4a90d9;margin-bottom:4px;">📥 数据还原</div>
+        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;">选择备份文件恢复数据<br><b style="color:#e6337e;">⚠️ 会覆盖当前数据</b></div>
+        <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
+        <button class="btn btn-soft btn-block" id="restorePickBtn" style="font-size:13px;">📂 选择文件</button>
+      </div>
+    </div>
     <div id="restorePreview" style="margin-top:10px;"></div>
+    <div id="backupHistory" style="margin-top:10px;font-size:11px;color:var(--text-soft);"></div>
   </div>
 
   <!-- 自动备份 -->
@@ -2345,27 +2344,6 @@ function fmtDateTime(ts){
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 function renderDataPage(){
-  // 数据概览
-  const allData = getAllData();
-  const keys = Object.keys(allData);
-  let totalSize = 0;
-  keys.forEach(k=>{ totalSize += (JSON.stringify(allData[k])||'').length; });
-  const overview = $('dataOverview');
-  if(keys.length === 0){
-    overview.innerHTML = '<div style="color:var(--text-soft);">暂无数据</div>';
-  } else {
-    overview.innerHTML = keys.map(k=>{
-      const size = (JSON.stringify(allData[k])||'').length;
-      const label = {
-        userProfile:'用户资料', period:'经期记录', symptoms:'经期症状',
-        sportLog:'运动打卡', clothes:'衣物', matches:'搭配',
-        favs:'收藏', lastOutfitScore:'最近评分', memos:'备忘录',
-        localBackups:'本地备份索引', autoBackup:'自动备份配置'
-      }[k] || k;
-      return `<div>📁 ${label}：<b style="color:var(--pink-600);">${formatBytes(size)}</b></div>`;
-    }).join('') + `<div style="margin-top:6px;color:var(--text-soft);">合计 ${keys.length} 项，约 ${formatBytes(totalSize)}</div>`;
-  }
-
   // 备份历史
   renderBackupHistory();
 

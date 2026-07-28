@@ -958,17 +958,17 @@ body::after{
   <!-- 备份与还原 -->
   <div class="card">
     <div class="card-title"><span class="icon">🔄</span>备份与还原</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
       <!-- 备份 -->
-      <div style="background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);padding:14px;">
+      <div style="background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
         <div style="font-size:15px;font-weight:700;color:var(--pink-600);margin-bottom:4px;">📤 数据备份</div>
-        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;">导出全部数据为 JSON 文件</div>
+        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">导出全部数据为 JSON 文件</div>
         <button class="btn btn-primary btn-block" id="backupNowBtn" style="font-size:13px;">📦 立即备份</button>
       </div>
       <!-- 还原 -->
-      <div style="background:linear-gradient(135deg,#f0f7ff,#e4f0ff);border-radius:var(--radius-sm);padding:14px;">
+      <div style="background:linear-gradient(135deg,#f0f7ff,#e4f0ff);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
         <div style="font-size:15px;font-weight:700;color:#4a90d9;margin-bottom:4px;">📥 数据还原</div>
-        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;">选择备份文件恢复数据<br><b style="color:#e6337e;">⚠️ 会覆盖当前数据</b></div>
+        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">选择备份文件恢复数据<br><b style="color:#e6337e;">⚠️ 会覆盖当前数据</b></div>
         <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
         <button class="btn btn-soft btn-block" id="restorePickBtn" style="font-size:13px;">📂 选择文件</button>
       </div>

@@ -293,6 +293,12 @@ body::after{
 .cal-cell.period.sport{
   background:linear-gradient(135deg,#ff7ab8,#c89b7b);color:#fff;
 }
+.cal-cell.ovulation-day{
+  background:rgba(255,179,71,0.25);border:2px solid #ffb347;color:#d97706;font-weight:700;
+}
+.cal-cell.ovulation-period{
+  background:rgba(255,179,71,0.1);color:#d97706;
+}
 .cal-cell .dot-marker{
   position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;
 }
@@ -308,13 +314,26 @@ body::after{
 .period-status .label{font-size:12px;color:var(--text-soft);}
 .period-status .value{font-size:22px;font-weight:700;color:var(--pink-500);margin-top:4px;}
 .period-status .emoji{font-size:30px;}
-.period-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.period-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
 .period-stat{
   background:#fff;border-radius:var(--radius-sm);padding:12px;text-align:center;
   border:1.5px solid var(--pink-100);
 }
 .period-stat .num{font-size:20px;font-weight:700;color:var(--pink-600);}
 .period-stat .lbl{font-size:11px;color:var(--text-soft);margin-top:2px;}
+
+/* 生理阶段标签 */
+.phase-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;}
+.phase-menstrual{background:#ff4ea1;}
+.phase-follicular{background:#8aa77a;}
+.phase-ovulation{background:#ffb347;}
+.phase-luteal{background:#9b7ba8;}
+
+/* 月度报表 */
+.report-card{background:#fff;border-radius:var(--radius-sm);padding:14px;border:1px solid var(--pink-100);}
+.report-card .stat-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--pink-100);}
+.report-card .stat-row:last-child{border-bottom:none;}
+.report-card .analysis{margin-top:10px;padding:10px;background:linear-gradient(135deg,#fff0f6,#fff5fa);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-main);}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:11px 18px;border-radius:24px;border:none;cursor:pointer;
@@ -439,6 +458,26 @@ body::after{
 }
 .week-bar-wrap .day{font-size:10px;color:var(--text-soft);}
 .week-bar-wrap.today .day{color:var(--pink-600);font-weight:700;}
+
+/* 训练感受选择器 */
+.feeling-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.feeling-opt{
+  padding:6px 12px;border-radius:20px;font-size:12px;
+  background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;transition:all 0.2s;
+}
+.feeling-opt.selected{background:var(--pink-400);color:#fff;border-color:var(--pink-400);}
+
+/* 经期运动提醒 */
+.period-sport-tip{
+  background:linear-gradient(135deg,#fff0f6,#fff5fa);border-radius:var(--radius-sm);
+  padding:12px;border:1.5px solid var(--pink-200);font-size:13px;line-height:1.7;
+}
+.period-sport-tip .tip-title{font-weight:700;color:var(--pink-600);margin-bottom:4px;}
+.period-sport-tip .avoid-list{color:var(--text-soft);font-size:12px;margin-top:4px;}
+
+/* 运动卡片经期标记 */
+.sport-chip.avoid{opacity:0.45;}
+.sport-chip.avoid .name::after{content:" ⚠️";}
 
 /* ============================================================
    造型师模块（来自 stylist，融入莹莹工作台风格）
@@ -679,17 +718,35 @@ body::after{
         <div>
           <div class="label">当前状态</div>
           <div class="value" id="periodValue">未记录</div>
+          <div id="periodPhaseRow" style="margin-top:6px;"></div>
         </div>
         <div class="emoji" id="periodEmoji">🌷</div>
       </div>
       <div class="period-grid">
         <div class="period-stat"><div class="num" id="cycleDay">—</div><div class="lbl">周期第几天</div></div>
         <div class="period-stat"><div class="num" id="nextPredict">—</div><div class="lbl">预计下次(天)</div></div>
+        <div class="period-stat"><div class="num" id="ovulationDay">—</div><div class="lbl">排卵日</div></div>
       </div>
+      <div id="periodTips" style="font-size:12px;color:var(--text-soft);line-height:1.7;margin-top:10px;padding:8px 10px;background:rgba(255,201,227,0.15);border-radius:10px;"></div>
       <div class="period-actions">
         <button class="btn btn-primary btn-block" id="periodStartBtn">🩸 记录开始</button>
         <button class="btn btn-soft btn-block" id="periodEndBtn" style="display:none;">结束经期</button>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span>经期设置</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:12px;color:var(--text-soft);">周期天数</label>
+          <input type="number" id="settingCycle" min="15" max="60" value="28" style="width:100%;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:14px;margin-top:4px;">
+        </div>
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:12px;color:var(--text-soft);">经期时长(天)</label>
+          <input type="number" id="settingPeriodLen" min="2" max="15" value="5" style="width:100%;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:14px;margin-top:4px;">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="savePeriodSettingsBtn">保存设置</button>
     </div>
 
     <div class="card">
@@ -713,35 +770,68 @@ body::after{
       <div class="cal-legend">
         <div class="item"><div class="swatch" style="background:linear-gradient(135deg,#ff7ab8,#ff4ea1);"></div>经期</div>
         <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.25);"></div>预测期</div>
+        <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.3);border:2px solid #ffb347;"></div>排卵日</div>
+        <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.1);"></div>排卵期</div>
         <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="icon">📅</span>历史记录</div>
+      <div class="card-title"><span class="icon">➕</span>手动录入历史经期</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <input type="date" id="manualPeriodStart" style="flex:1;min-width:130px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        <input type="date" id="manualPeriodEnd" style="flex:1;min-width:130px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input type="number" id="manualCycleLen" placeholder="周期天数" min="15" max="60" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        <input type="number" id="manualPeriodLen" placeholder="经期时长" min="2" max="15" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+      </div>
+      <button class="btn btn-primary btn-block" id="addManualPeriodBtn">添加历史记录</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span>历史记录</div>
       <div class="history-list" id="periodHistory"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span>月度经期报表</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <input type="month" id="periodReportMonth" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        <button class="btn btn-primary" id="genPeriodReportBtn" style="flex-shrink:0;">生成报表</button>
+      </div>
+      <div id="periodReportArea"></div>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-danger btn-block" id="clearAllPeriodBtn">🗑 清空全部经期记录</button>
     </div>
   </div>
 
   <!-- 运动打卡 -->
   <div class="page" id="page-sport">
+    <div class="card" id="periodSportTipCard">
+      <div class="card-title"><span class="icon">🌸</span>经期运动提醒</div>
+      <div id="periodSportTip"></div>
+    </div>
+
     <div class="card">
       <div class="card-title"><span class="icon">🏃‍♀️</span>选择运动项目</div>
       <div class="sport-tabs" id="sportCategory"></div>
       <div class="sport-grid" id="sportGrid"></div>
     </div>
 
-    <!-- 运动计时器 -->
+    <!-- 打卡面板 -->
     <div class="card">
-      <div class="card-title"><span class="icon">⏱️</span>运动计时</div>
-      <div id="timerArea">
+      <div class="card-title"><span class="icon">✅</span>运动打卡</div>
+      <div id="checkInArea">
         <div class="timer-empty">请先选择一个运动项目</div>
       </div>
     </div>
 
     <!-- 今日打卡明细 -->
     <div class="card">
-      <div class="card-title"><span class="icon">✅</span>今日打卡明细</div>
+      <div class="card-title"><span class="icon">📋</span>今日打卡明细</div>
       <div class="today-detail" id="todayDetail">
         <div class="empty">今天还没有打卡记录</div>
       </div>
@@ -769,6 +859,24 @@ body::after{
         <div class="item"><div class="swatch" style="background:rgba(200,155,123,0.2);"></div>有运动</div>
         <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span>月度运动报表</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <input type="month" id="sportReportMonth" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        <button class="btn btn-primary" id="genSportReportBtn" style="flex-shrink:0;">生成报表</button>
+      </div>
+      <div id="sportReportArea"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔍</span>历史记录查询</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input type="date" id="sportHistoryDate" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
+        <button class="btn btn-primary" id="querySportHistoryBtn" style="flex-shrink:0;">查询</button>
+      </div>
+      <div id="sportHistoryArea"></div>
     </div>
 
     <div class="card">
@@ -1065,7 +1173,9 @@ function renderHome(){
   } else if(period.history.length){
     const last = period.history[period.history.length-1];
     const since = Math.floor((Date.now()-last.start)/86400000);
-    periodInfo = `距上次经期 ${since} 天 🌷`;
+    const phase = getTodayPhase();
+    const phaseLabel = phase ? PHASE_INFO[phase].label : '';
+    periodInfo = `距上次经期 ${since} 天 🌷${phaseLabel?' · '+phaseLabel:''}`;
   }
   // 运动
   const today = new Date().toDateString();
@@ -1106,12 +1216,232 @@ function renderHome(){
 }
 
 // ========== 经期模块 ==========
+const PHASE_INFO = {
+  menstrual: {label:'月经期', icon:'🩸', cls:'phase-menstrual'},
+  follicular: {label:'卵泡期', icon:'🌱', cls:'phase-follicular'},
+  ovulation: {label:'排卵期', icon:'✨', cls:'phase-ovulation'},
+  luteal: {label:'黄体期', icon:'🌙', cls:'phase-luteal'}
+};
+
+function getPeriodSettings(){
+  const period = DB.get('period', {current:null, history:[]});
+  return period.settings || {avgCycle:28, avgPeriodLen:5};
+}
+
+function calcNextPeriod(lastStart, cycleLen){
+  const d = new Date(lastStart);
+  d.setDate(d.getDate() + cycleLen);
+  return d;
+}
+function calcOvulationDay(nextPeriodDate){
+  const d = new Date(nextPeriodDate);
+  d.setDate(d.getDate() - 14);
+  return d;
+}
+function calcOvulationPeriod(ovDay){
+  const start = new Date(ovDay); start.setDate(start.getDate() - 5);
+  const end = new Date(ovDay); end.setDate(end.getDate() + 4);
+  return {start, end};
+}
+
+function getTodayPhase(){
+  const period = DB.get('period', {current:null, history:[]});
+  const settings = getPeriodSettings();
+  const today = new Date(); today.setHours(0,0,0,0);
+  if(period.current) return 'menstrual';
+  if(!period.history.length) return null;
+  const last = period.history[period.history.length-1];
+  const lastStart = new Date(last.start); lastStart.setHours(0,0,0,0);
+  const periodLen = last.periodLen || settings.avgPeriodLen;
+  const cycleLen = last.cycleLen || settings.avgCycle;
+  const menstrualEnd = new Date(lastStart);
+  menstrualEnd.setDate(menstrualEnd.getDate() + periodLen - 1);
+  if(today >= lastStart && today <= menstrualEnd) return 'menstrual';
+  const nextPeriod = calcNextPeriod(lastStart, cycleLen);
+  const ovDay = calcOvulationDay(nextPeriod);
+  const ov = calcOvulationPeriod(ovDay);
+  if(today >= ov.start && today <= ov.end) return 'ovulation';
+  const follicularEnd = new Date(ov.start);
+  follicularEnd.setDate(follicularEnd.getDate() - 1);
+  if(today > menstrualEnd && today <= follicularEnd) return 'follicular';
+  if(today > ov.end && today < nextPeriod) return 'luteal';
+  return null;
+}
+
+function savePeriodSettings(){
+  const cycle = parseInt(document.getElementById('settingCycle').value);
+  const periodLen = parseInt(document.getElementById('settingPeriodLen').value);
+  if(!cycle || cycle < 15 || cycle > 60){ toast('周期天数应在15-60之间'); return; }
+  if(!periodLen || periodLen < 2 || periodLen > 15){ toast('经期时长应在2-15之间'); return; }
+  const period = DB.get('period', {current:null, history:[]});
+  period.settings = {avgCycle:cycle, avgPeriodLen:periodLen};
+  DB.set('period', period);
+  toast('设置已保存 💕');
+  renderPeriod();
+  renderHome();
+}
+
+function addManualPeriod(){
+  const startStr = document.getElementById('manualPeriodStart').value;
+  const endStr = document.getElementById('manualPeriodEnd').value;
+  const cycleLen = parseInt(document.getElementById('manualCycleLen').value);
+  const periodLen = parseInt(document.getElementById('manualPeriodLen').value);
+  if(!startStr){ toast('请选择开始日期'); return; }
+  const start = new Date(startStr + 'T00:00:00').getTime();
+  if(isNaN(start)){ toast('开始日期格式错误'); return; }
+  let end = null;
+  if(endStr){
+    end = new Date(endStr + 'T23:59:59').getTime();
+    if(end < start){ toast('结束日期不能早于开始日期'); return; }
+  }
+  const settings = getPeriodSettings();
+  const record = {
+    start, end,
+    cycleLen: cycleLen || settings.avgCycle,
+    periodLen: periodLen || (end ? Math.floor((end-start)/86400000)+1 : settings.avgPeriodLen),
+    symptoms: []
+  };
+  const period = DB.get('period', {current:null, history:[]});
+  period.history.push(record);
+  period.history.sort((a,b)=>a.start-b.start);
+  DB.set('period', period);
+  // 清空输入
+  document.getElementById('manualPeriodStart').value = '';
+  document.getElementById('manualPeriodEnd').value = '';
+  document.getElementById('manualCycleLen').value = '';
+  document.getElementById('manualPeriodLen').value = '';
+  toast('历史记录已添加 🌸');
+  renderPeriod();
+  renderHome();
+}
+
+function editPeriodRecord(idx){
+  const period = DB.get('period', {current:null, history:[]});
+  const h = period.history[idx];
+  if(!h) return;
+  const d = new Date(h.start);
+  const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const newStart = prompt('开始日期 (YYYY-MM-DD)：', dStr);
+  if(newStart === null) return;
+  const newCycle = prompt('周期天数：', h.cycleLen || 28);
+  if(newCycle === null) return;
+  const newPeriodLen = prompt('经期时长：', h.periodLen || 5);
+  if(newPeriodLen === null) return;
+  const ts = new Date(newStart + 'T00:00:00').getTime();
+  if(isNaN(ts)){ toast('日期格式错误'); return; }
+  h.start = ts;
+  h.cycleLen = parseInt(newCycle) || h.cycleLen || 28;
+  h.periodLen = parseInt(newPeriodLen) || h.periodLen || 5;
+  if(h.end){
+    h.end = ts + (h.periodLen - 1) * 86400000;
+  }
+  period.history.sort((a,b)=>a.start-b.start);
+  DB.set('period', period);
+  toast('记录已更新');
+  renderPeriod();
+  renderHome();
+}
+
+function analyzeRegularity(history){
+  if(history.length < 2) return {level:'数据不足', desc:'至少需要2个周期数据才能分析规律性'};
+  const cycles = [];
+  for(let i=1; i<history.length; i++){
+    if(history[i].cycleLen) cycles.push(history[i].cycleLen);
+  }
+  if(cycles.length < 2) return {level:'数据不足', desc:'至少需要2个周期数据才能分析规律性'};
+  const avg = cycles.reduce((a,b)=>a+b, 0) / cycles.length;
+  const variance = cycles.reduce((s,c)=>s + (c-avg)**2, 0) / cycles.length;
+  const stdDev = Math.sqrt(variance);
+  let level, desc;
+  if(stdDev <= 2){ level='规则'; desc=`周期非常规律，波动 ±${stdDev.toFixed(1)} 天`; }
+  else if(stdDev <= 5){ level='基本规则'; desc=`周期略有波动，波动 ±${stdDev.toFixed(1)} 天`; }
+  else { level='不规则'; desc=`周期波动较大（±${stdDev.toFixed(1)} 天），建议关注`; }
+  return {level, desc, avg:avg.toFixed(1)};
+}
+
+function renderPeriodMonthlyReport(){
+  const monthStr = document.getElementById('periodReportMonth').value;
+  if(!monthStr){ toast('请选择月份'); return; }
+  const [year, month] = monthStr.split('-').map(Number);
+  const period = DB.get('period', {current:null, history:[]});
+  const settings = getPeriodSettings();
+  // 当月来潮记录
+  const monthRecords = period.history.filter(h=>{
+    const d = new Date(h.start);
+    return d.getFullYear() === year && d.getMonth() === month - 1;
+  });
+  const area = document.getElementById('periodReportArea');
+  if(!monthRecords.length && !(period.current && new Date(period.current.start).getMonth()===month-1 && new Date(period.current.start).getFullYear()===year)){
+    area.innerHTML = '<div class="empty">该月份没有经期记录</div>';
+    return;
+  }
+  const allRecords = [...monthRecords];
+  if(period.current && new Date(period.current.start).getMonth()===month-1 && new Date(period.current.start).getFullYear()===year){
+    allRecords.push({...period.current, end:Date.now()});
+  }
+  const count = allRecords.length;
+  const avgCycle = allRecords.reduce((s,h)=>s + (h.cycleLen||settings.avgCycle), 0) / (count || 1);
+  const avgPeriodLen = allRecords.reduce((s,h)=>s + (h.periodLen || (h.end?Math.floor((h.end-h.start)/86400000)+1:settings.avgPeriodLen)), 0) / (count || 1);
+  // 周期长度分类
+  let cycleType;
+  if(avgCycle < 21) cycleType = '月经频发（<21天）';
+  else if(avgCycle <= 25) cycleType = '偏短（21-25天）';
+  else if(avgCycle <= 30) cycleType = '正常（26-30天）';
+  else if(avgCycle <= 35) cycleType = '偏长（31-35天）';
+  else cycleType = '月经稀发（>35天）';
+  // 规律性
+  const regularity = analyzeRegularity(period.history);
+  // 分析文本
+  let analysis = `📊 ${year}年${month}月经期分析报告\n\n`;
+  analysis += `本月来潮 ${count} 次，平均周期 ${avgCycle.toFixed(0)} 天（${cycleType}），经期平均 ${avgPeriodLen.toFixed(1)} 天。\n`;
+  analysis += `周期规律性：${regularity.level}。${regularity.desc}。\n`;
+  if(avgCycle < 21 || avgCycle > 35){
+    analysis += `⚠️ 周期长度异常，建议咨询医生。\n`;
+  }
+  if(avgPeriodLen > 7){
+    analysis += `⚠️ 经期偏长（>7天），可能经量较多，注意补铁。\n`;
+  }
+  if(regularity.level === '不规则'){
+    analysis += `⚠️ 周期不规律，可能受压力、作息、饮食影响，建议记录更多周期观察趋势。\n`;
+  }
+  if(regularity.level === '规则' && avgCycle >= 26 && avgCycle <= 30 && avgPeriodLen <= 7){
+    analysis += `✅ 经期规律正常，继续保持健康的生活方式！\n`;
+  }
+  analysis += `\n💡 建议：保持规律作息、均衡饮食、适度运动，经期注意保暖。`;
+
+  area.innerHTML = `
+    <div class="report-card">
+      <div class="stat-row"><span>当月来潮次数</span><b>${count} 次</b></div>
+      <div class="stat-row"><span>平均周期</span><b>${avgCycle.toFixed(0)} 天（${cycleType}）</b></div>
+      <div class="stat-row"><span>经期平均时长</span><b>${avgPeriodLen.toFixed(1)} 天</b></div>
+      <div class="stat-row"><span>周期规律性</span><b>${regularity.level}</b></div>
+      <div class="analysis">${analysis.replace(/\n/g,'<br>')}</div>
+    </div>
+  `;
+}
+
+function clearAllPeriod(){
+  if(!confirm('确定清空全部经期记录吗？此操作不可恢复！')) return;
+  DB.set('period', {current:null, history:[]});
+  DB.set('symptoms', {});
+  toast('经期记录已清空');
+  renderPeriod();
+  renderHome();
+}
+
 function renderPeriod(){
   const period = DB.get('period', {current:null, history:[]});
+  const settings = getPeriodSettings();
   const status = document.getElementById('periodValue');
   const emoji = document.getElementById('periodEmoji');
   const endBtn = document.getElementById('periodEndBtn');
   const startBtn = document.getElementById('periodStartBtn');
+  const phaseRow = document.getElementById('periodPhaseRow');
+  const tipsEl = document.getElementById('periodTips');
+  const ovEl = document.getElementById('ovulationDay');
+
+  document.getElementById('settingCycle').value = settings.avgCycle;
+  document.getElementById('settingPeriodLen').value = settings.avgPeriodLen;
 
   if(period.current){
     status.textContent = '经期中';
@@ -1120,6 +1450,10 @@ function renderPeriod(){
     startBtn.textContent = '📝 记录症状';
     const days = Math.floor((Date.now()-period.current.start)/86400000)+1;
     document.getElementById('cycleDay').textContent = days;
+    document.getElementById('nextPredict').textContent = '—';
+    ovEl.textContent = '—';
+    phaseRow.innerHTML = `<span class="phase-badge phase-menstrual">🩸 月经期</span>`;
+    tipsEl.innerHTML = '🩸 经期中，注意保暖休息，避免高强度运动。';
   } else {
     status.textContent = '安静期';
     emoji.textContent = '🌷';
@@ -1127,17 +1461,38 @@ function renderPeriod(){
     startBtn.textContent = '🩸 记录开始';
     if(period.history.length){
       const last = period.history[period.history.length-1];
-      const cycleLen = last.cycleLen || 28;
-      const nextDays = cycleLen - Math.floor((Date.now()-last.start)/86400000);
-      document.getElementById('cycleDay').textContent = Math.floor((Date.now()-last.start)/86400000)+1;
-      document.getElementById('nextPredict').textContent = nextDays>0?nextDays:'约今天';
+      const cycleLen = last.cycleLen || settings.avgCycle;
+      const periodLen = last.periodLen || settings.avgPeriodLen;
+      const since = Math.floor((Date.now()-last.start)/86400000);
+      const nextDays = cycleLen - since;
+      document.getElementById('cycleDay').textContent = since + 1;
+      document.getElementById('nextPredict').textContent = nextDays>0 ? nextDays : '约今天';
+      const lastStart = new Date(last.start); lastStart.setHours(0,0,0,0);
+      const nextPeriod = calcNextPeriod(lastStart, cycleLen);
+      const ovDay = calcOvulationDay(nextPeriod);
+      ovEl.textContent = `${ovDay.getMonth()+1}/${ovDay.getDate()}`;
+      const phase = getTodayPhase();
+      if(phase){
+        const pi = PHASE_INFO[phase];
+        phaseRow.innerHTML = `<span class="phase-badge ${pi.cls}">${pi.icon} ${pi.label}</span>`;
+      } else {
+        phaseRow.innerHTML = '';
+      }
+      let tipText = `🌸 下次经期预计 <b>${nextPeriod.getMonth()+1}/${nextPeriod.getDate()}</b>（还有 ${nextDays>0?nextDays:0} 天）<br>✨ 排卵日预计 <b>${ovDay.getMonth()+1}/${ovDay.getDate()}</b>`;
+      const phase2 = getTodayPhase();
+      if(phase2 === 'ovulation') tipText += '<br>🔥 正处排卵期，受孕概率高。备孕把握时机，避孕需注意防护。';
+      else if(phase2 === 'luteal') tipText += '<br>🌙 黄体期，受孕概率较低。';
+      else if(phase2 === 'follicular') tipText += '<br>🌱 卵泡期，受孕概率较低。';
+      tipsEl.innerHTML = tipText;
     } else {
       document.getElementById('cycleDay').textContent = '—';
       document.getElementById('nextPredict').textContent = '—';
+      ovEl.textContent = '—';
+      phaseRow.innerHTML = '';
+      tipsEl.innerHTML = '📝 请先记录经期或手动添加历史记录，系统将自动计算排卵日和生理阶段。';
     }
   }
 
-  // 历史
   const hist = document.getElementById('periodHistory');
   if(!period.history.length){
     hist.innerHTML = '<div class="empty">还没有历史记录，开始记录吧 🌸</div>';
@@ -1145,23 +1500,59 @@ function renderPeriod(){
     hist.innerHTML = period.history.slice().reverse().map((h,idx)=>{
       const realIdx = period.history.length - 1 - idx;
       const d = new Date(h.start);
-      const dStr = `${d.getMonth()+1}/${d.getDate()}`;
-      const len = h.end? Math.floor((h.end-h.start)/86400000)+1 : '进行中';
+      const dStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+      const len = h.periodLen || (h.end? Math.floor((h.end-h.start)/86400000)+1 : '进行中');
+      const cLen = h.cycleLen || settings.avgCycle;
       const note = h.symptoms? h.symptoms.join('、') : '';
-      return `<div class="history-item"><div style="flex:1;"><div class="date">${dStr}</div><div class="note">${note||'无备注'}</div></div><div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--pink-500);font-weight:600;">${len}天</span><button class="del-btn" onclick="delPeriodRecord(${realIdx})" title="删除">✕</button></div></div>`;
+      return `<div class="history-item"><div style="flex:1;"><div class="date">${dStr} · ${len}天 · 周期${cLen}天</div><div class="note">${note||'无备注'}</div></div><div style="display:flex;align-items:center;gap:6px;"><button class="del-btn" onclick="editPeriodRecord(${realIdx})" title="编辑" style="background:#fff;border:1px solid var(--pink-200);color:var(--pink-500);width:24px;height:24px;border-radius:50%;cursor:pointer;">✎</button><button class="del-btn" onclick="delPeriodRecord(${realIdx})" title="删除">✕</button></div></div>`;
     }).join('');
   }
 
-  // 恢复症状选择
   const today = new Date().toDateString();
   const symptoms = DB.get('symptoms', {});
   const selected = symptoms[today] || (period.current? period.current.symptoms||[] : []);
   document.querySelectorAll('.symptom-tag').forEach(t=>{
     t.classList.toggle('active', selected.includes(t.dataset.s));
   });
-  
-  // 渲染经期日历
   renderPeriodCalendar();
+}
+
+function periodStart(){
+  const period = DB.get('period', {current:null, history:[]});
+  if(period.current){
+    toast('经期已在记录中');
+    renderPeriod();
+    return;
+  }
+  period.current = { start: Date.now(), symptoms: [] };
+  DB.set('period', period);
+  toast('经期开始记录 🌸');
+  renderPeriod();
+  renderHome();
+}
+function periodEnd(){
+  const period = DB.get('period', {current:null, history:[]});
+  if(!period.current){ return; }
+  const settings = getPeriodSettings();
+  const record = {...period.current, end: Date.now()};
+  record.cycleLen = period.history.length? 
+    Math.round((record.start - period.history[period.history.length-1].start)/86400000) : settings.avgCycle;
+  record.periodLen = Math.max(1, Math.round((record.end - record.start)/86400000) + 1);
+  period.history.push(record);
+  period.current = null;
+  DB.set('period', period);
+  toast('经期已结束，好好休息 🌷');
+  renderPeriod();
+  renderHome();
+}
+function delPeriodRecord(idx){
+  if(!confirm('确定删除这条经期记录吗？')) return;
+  const period = DB.get('period', {current:null, history:[]});
+  period.history.splice(idx, 1);
+  DB.set('period', period);
+  toast('记录已��除');
+  renderPeriod();
+  renderHome();
 }
 
 // ========== 日历组件 ==========
@@ -1211,6 +1602,8 @@ function buildCalendar(containerId, year, month, markers, opts){
       else if(marker.type === 'predicted') classes += ' predicted';
       else if(marker.type === 'sport') classes += ' sport';
       else if(marker.type === 'period-sport') classes += ' period sport';
+      else if(marker.type === 'ovulation-day') classes += ' ovulation-day';
+      else if(marker.type === 'ovulation-period') classes += ' ovulation-period';
       
       if(marker.type === 'sport' || marker.type === 'period-sport'){
         // 运动日历：显示运动名称 + 时长
@@ -1221,6 +1614,8 @@ function buildCalendar(containerId, year, month, markers, opts){
           return `<span style="font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${emoji}${name} ${dur}'</span>`;
         }).join('');
         inner = `<span style="font-size:10px;font-weight:700;line-height:1;">${d}</span>${itemNames}`;
+      } else if(marker.type === 'ovulation-day') {
+        inner = `<span style="font-size:10px;font-weight:700;">${d}</span><span style="font-size:8px;">卵</span>`;
       } else if(marker.duration) {
         inner = `<span>${d}</span><span style="font-size:8px;opacity:0.8;">${marker.duration}'</span>`;
       }
@@ -1243,12 +1638,14 @@ function buildCalendar(containerId, year, month, markers, opts){
 // 经期日历标记
 function getPeriodMarkers(){
   const period = DB.get('period', {current:null, history:[]});
+  const settings = period.settings || {avgCycle:28, avgPeriodLen:5};
   const markers = {};
   
   // 历史经期
   period.history.forEach(h=>{
     const start = new Date(h.start);
-    const end = h.end ? new Date(h.end) : new Date();
+    const pLen = h.periodLen || settings.avgPeriodLen;
+    const end = h.end ? new Date(h.end) : new Date(start.getTime() + (pLen-1)*86400000);
     for(let d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
       const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
       markers[key] = {type:'period'};
@@ -1265,21 +1662,41 @@ function getPeriodMarkers(){
     }
   }
   
-  // 预测下次经期（基于历史周期）
+  // 预测下次经期 + 排卵日 + 排卵期
   if(!period.current && period.history.length){
     const last = period.history[period.history.length-1];
-    const cycleLen = last.cycleLen || 28;
+    const cycleLen = last.cycleLen || settings.avgCycle;
+    const periodLen = last.periodLen || settings.avgPeriodLen;
     const nextStart = new Date(last.start);
     nextStart.setDate(nextStart.getDate() + cycleLen);
     const nextEnd = new Date(nextStart);
-    nextEnd.setDate(nextEnd.getDate() + 4); // 预测5天
+    nextEnd.setDate(nextEnd.getDate() + periodLen - 1);
+    
+    // 排卵日 = 下次经期日 - 14天
+    const ovDay = new Date(nextStart);
+    ovDay.setDate(ovDay.getDate() - 14);
+    // 排卵期 = 排卵日前5天 ~ 排卵日后4天
+    const ovStart = new Date(ovDay);
+    ovStart.setDate(ovStart.getDate() - 5);
+    const ovEnd = new Date(ovDay);
+    ovEnd.setDate(ovEnd.getDate() + 4);
+    
     const today = new Date();
+    // 预测经期
     if(nextEnd >= today){
       for(let d = new Date(nextStart); d <= nextEnd; d.setDate(d.getDate()+1)){
         const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
         if(!markers[key]) markers[key] = {type:'predicted'};
       }
     }
+    // 排卵期（不覆盖已有经期标记）
+    for(let d = new Date(ovStart); d <= ovEnd; d.setDate(d.getDate()+1)){
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if(!markers[key]) markers[key] = {type:'ovulation-period'};
+    }
+    // 排卵日（优先级最高）
+    const ovKey = `${ovDay.getFullYear()}-${ovDay.getMonth()}-${ovDay.getDate()}`;
+    markers[ovKey] = {type:'ovulation-day'};
   }
   
   return markers;
@@ -1400,45 +1817,104 @@ function delPeriodRecord(idx){
 
 // ========== 运动模块 ==========
 const SPORT_DATA = {
+  '力量抗阻': [
+    {id:'upper', emoji:'💪', name:'上肢训练', min:25, calPerMin:6},
+    {id:'leg', emoji:'🦵', name:'臀腿训练', min:30, calPerMin:6},
+    {id:'dumbbell', emoji:'🏋️‍♀️', name:'哑铃', min:25, calPerMin:6},
+    {id:'band', emoji:'🎗️', name:'弹力带', min:20, calPerMin:5},
+    {id:'kettlebell', emoji:'⚖️', name:'壶铃', min:25, calPerMin:7},
+  ],
+  '徒手训练': [
+    {id:'core', emoji:'🔥', name:'核心训练', min:20, calPerMin:5},
+    {id:'pushup', emoji:'🤸', name:'俯卧撑', min:15, calPerMin:5},
+    {id:'squat', emoji:'🦵', name:'深蹲', min:15, calPerMin:5},
+    {id:'plank', emoji:'📏', name:'平板支撑', min:10, calPerMin:4},
+  ],
   '有氧': [
-    {id:'run', emoji:'🏃‍♀️', name:'跑步', min:30},
-    {id:'walk', emoji:'🚶‍♀️', name:'快走', min:20},
-    {id:'jogging', emoji:'🏃', name:'慢跑', min:25},
-    {id:'cycling', emoji:'🚴‍♀️', name:'骑行', min:30},
-    {id:'jumpRope', emoji:'🪢', name:'跳绳', min:15},
-    {id:'climb', emoji:'🧗‍♀️', name:'爬坡', min:30},
+    {id:'run', emoji:'🏃‍♀️', name:'跑步', min:30, calPerMin:8},
+    {id:'jogging', emoji:'🏃', name:'慢跑', min:25, calPerMin:7},
+    {id:'cycling', emoji:'🚴‍♀️', name:'骑行', min:30, calPerMin:7},
+    {id:'jumpRope', emoji:'🪢', name:'跳绳', min:15, calPerMin:10},
+    {id:'hiit', emoji:'💥', name:'HIIT', min:20, calPerMin:10},
   ],
-  '力量': [
-    {id:'upper', emoji:'💪', name:'上肢训练', min:25},
-    {id:'core', emoji:'🔥', name:'核心训练', min:20},
-    {id:'leg', emoji:'🦵', name:'臀腿', min:30},
-    {id:'dumbbell', emoji:'🏋️‍♀️', name:'哑铃', min:25},
-    {id:'band', emoji:'🎗️', name:'弹力带', min:20},
-    {id:'kettlebell', emoji:'⚖️', name:'壶铃', min:25},
+  '散步爬山': [
+    {id:'walk', emoji:'🚶‍♀️', name:'快走', min:20, calPerMin:4},
+    {id:'hiking', emoji:'🥾', name:'爬山', min:60, calPerMin:5},
+    {id:'climb', emoji:'🧗‍♀️', name:'爬坡', min:30, calPerMin:6},
+    {id:'stairs', emoji:'🪜', name:'爬楼梯', min:15, calPerMin:6},
   ],
-  '柔韧': [
-    {id:'yoga', emoji:'🧘‍♀️', name:'瑜伽', min:30},
-    {id:'pilates', emoji:'🤸‍♀️', name:'普拉提', min:30},
-    {id:'barre', emoji:'🩰', name:'芭杆运动', min:30},
-    {id:'stretch', emoji:'🙆‍♀️', name:'拉伸', min:15},
-    {id:'dance', emoji:'💃', name:'舞蹈', min:30},
-    {id:'taiChi', emoji:'🌿', name:'太极', min:25},
+  '芭杆': [
+    {id:'barre_basic', emoji:'🩰', name:'基础芭杆', min:30, calPerMin:5},
+    {id:'barre_core', emoji:'🩰', name:'核心芭杆', min:30, calPerMin:7},
+    {id:'barre_arm', emoji:'💫', name:'手臂芭杆', min:20, calPerMin:5},
+    {id:'barre_leg', emoji:'🌟', name:'腿部芭杆', min:25, calPerMin:6},
+  ],
+  '瑜伽': [
+    {id:'yoga', emoji:'🧘‍♀️', name:'瑜伽', min:30, calPerMin:3},
+    {id:'yoga_flow', emoji:'🌊', name:'流瑜伽', min:40, calPerMin:4},
+    {id:'stretch', emoji:'🙆‍♀️', name:'拉伸', min:15, calPerMin:3},
+    {id:'yin_yoga', emoji:'🌙', name:'阴瑜伽', min:45, calPerMin:3},
+  ],
+  '普拉提': [
+    {id:'pilates', emoji:'🤸‍♀️', name:'普拉提', min:30, calPerMin:4},
+    {id:'pilates_core', emoji:'🎯', name:'核心普拉提', min:30, calPerMin:5},
+    {id:'reformer', emoji:'🔧', name:'器械普拉提', min:40, calPerMin:5},
+  ],
+  '球类': [
+    {id:'badminton', emoji:'🏸', name:'羽毛球', min:30, calPerMin:6},
+    {id:'tableTennis', emoji:'🏓', name:'乒乓球', min:25, calPerMin:5},
+    {id:'basketball', emoji:'🏀', name:'篮球', min:30, calPerMin:7},
+    {id:'volleyball', emoji:'🏐', name:'排球', min:30, calPerMin:5},
+    {id:'tennis', emoji:'🎾', name:'网球', min:30, calPerMin:7},
+    {id:'football', emoji:'⚽', name:'足球', min:30, calPerMin:7},
   ]
 };
-let currentCategory = '有氧';
-let selectedSportId = null;  // 当前选中的运动项目
-let timerRunning = false;    // 计时器是否运行中
-let timerStartTs = 0;        // 计时开始时间戳
-let timerInterval = null;    // 计时器 interval
+let currentCategory = '力量抗阻';
+let selectedSportId = null;
+let timerRunning = false;
+let timerStartTs = 0;
+let timerInterval = null;
+let selectedFeeling = '适中';
 
+function normalizeSportRecord(r){
+  if(typeof r === 'string'){
+    const info = getSportInfo(r);
+    return {id:r, duration: info?info.min:20, calories:0, feeling:'适中', startTime:0, endTime:0};
+  }
+  return {...r, calories: r.calories ?? 0, feeling: r.feeling ?? '适中', duration: r.duration ?? getSportDefaultMin(r.id)};
+}
+function calcCalories(id, duration){
+  const s = getSportInfo(id);
+  return Math.round((s ? s.calPerMin : 5) * duration);
+}
+function getPeriodSportTip(){
+  const phase = getTodayPhase();
+  if(!phase) return null;
+  const tips = {
+    menstrual: {icon:'🩸', title:'月经期', text:'身体需要休息，建议进行舒缓运动。避免高强度核心训练和跳跃类运动。', avoid:['barre_core','run','jumpRope','hiit','basketball','football'], recommend:['barre_basic','walk','yoga','stretch']},
+    follicular: {icon:'🌱', title:'卵泡期', text:'身体恢复期，能量上升，可以逐步增加运动强度。适合有氧、力量训练。', avoid:[], recommend:['run','upper','leg','core','cycling','badminton']},
+    ovulation: {icon:'✨', title:'排卵期', text:'体能高峰期，适合高强度训练。可以挑战核心芭杆、HIIT、球类运动。', avoid:[], recommend:['barre_core','run','hiit','badminton','basketball','tennis']},
+    luteal: {icon:'🌙', title:'黄体期', text:'能量下降期，建议中等强度运动。经期将至，避免过度疲劳。', avoid:['barre_core','hiit'], recommend:['yoga','pilates','barre_basic','walk','stretch']}
+  };
+  return tips[phase];
+}
+function renderPeriodSportTip(){
+  const tip = getPeriodSportTip();
+  const el = document.getElementById('periodSportTip');
+  if(!tip){ el.innerHTML = '<div class="period-sport-tip"><div class="tip-title">暂无经期数据</div><div style="font-size:12px;color:var(--text-soft);">记录经期后可获取个性化运动建议</div></div>'; return; }
+  const avoidNames = tip.avoid.map(id=>{const s=getSportInfo(id);return s?s.name:id;}).join('、');
+  const recNames = tip.recommend.map(id=>{const s=getSportInfo(id);return s?s.name:id;}).join('、');
+  el.innerHTML = `<div class="period-sport-tip"><div class="tip-title">${tip.icon} ${tip.title}</div><div>${tip.text}</div><div class="avoid-list">✅ 推荐：${recNames}</div>${avoidNames?`<div class="avoid-list" style="color:#e6337e;">⚠️ 建议避开：${avoidNames}</div>`:''}</div>`;
+}
 function renderSport(){
+  renderPeriodSportTip();
   renderSportCategoryTabs();
   renderSportGrid();
-  renderTimer();
+  renderCheckIn();
   renderTodayDetail();
   renderSportCalendar();
+  renderSportSummary();
 }
-
 function renderSportCategoryTabs(){
   const c = document.getElementById('sportCategory');
   c.innerHTML = Object.keys(SPORT_DATA).map(cat=>
@@ -1448,160 +1924,93 @@ function renderSportCategoryTabs(){
     t.onclick = ()=>{ currentCategory = t.dataset.cat; renderSportCategoryTabs(); renderSportGrid(); };
   });
 }
-
 function renderSportGrid(){
   const g = document.getElementById('sportGrid');
-  const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
   const todayRecords = getTodayRecords(log);
+  const tip = getPeriodSportTip();
   g.innerHTML = SPORT_DATA[currentCategory].map(s=>{
     const doneCount = todayRecords.filter(r=>r.id===s.id).length;
     const isDone = doneCount > 0;
     const isSelected = selectedSportId === s.id;
+    const isAvoid = tip && tip.avoid.includes(s.id);
     let durText = '';
     if(isDone){
       const totalMin = todayRecords.filter(r=>r.id===s.id).reduce((sum,r)=>sum+r.duration,0);
       durText = `<div class="duration">${totalMin}分钟</div>`;
     }
-    return `<div class="sport-chip ${isDone?'done':''} ${isSelected?'selected':''}" data-id="${s.id}">
-      <span class="check">✓</span>
-      <div class="emoji">${s.emoji}</div>
-      <div class="name">${s.name}</div>
-      ${durText}
-    </div>`;
+    return `<div class="sport-chip ${isDone?'done':''} ${isSelected?'selected':''} ${isAvoid?'avoid':''}" data-id="${s.id}"><span class="check">✓</span><div class="emoji">${s.emoji}</div><div class="name">${s.name}</div>${durText}</div>`;
   }).join('');
-  g.querySelectorAll('.sport-chip').forEach(c=>{
-    c.onclick = ()=>selectSport(c.dataset.id);
-  });
-  renderSportSummary();
+  g.querySelectorAll('.sport-chip').forEach(c=>{ c.onclick = ()=>selectSport(c.dataset.id); });
 }
-
-// 获取某天的打卡记录（兼容旧格式）
 function getTodayRecords(log, date){
   const key = (date||new Date()).toDateString();
   const raw = log[key] || [];
-  // 兼容旧格式：如果是字符串数组则转为对象
-  return raw.map(r=>{
-    if(typeof r === 'string') return {id:r, duration: getSportDefaultMin(r), startTime:0, endTime:0};
-    return r;
-  });
+  return raw.map(normalizeSportRecord);
 }
-function getSportDefaultMin(id){
-  const s = Object.values(SPORT_DATA).flat().find(x=>x.id===id);
-  return s ? s.min : 20;
-}
-function getSportInfo(id){
-  return Object.values(SPORT_DATA).flat().find(x=>x.id===id);
-}
-
+function getSportDefaultMin(id){ const s = getSportInfo(id); return s ? s.min : 20; }
+function getSportInfo(id){ return Object.values(SPORT_DATA).flat().find(x=>x.id===id); }
 function selectSport(id){
-  if(timerRunning){
-    toast('请先停止当前计时');
-    return;
-  }
   selectedSportId = (selectedSportId === id) ? null : id;
+  selectedFeeling = '适中';
   renderSportGrid();
-  renderTimer();
+  renderCheckIn();
 }
-
-function renderTimer(){
-  const area = document.getElementById('timerArea');
+function renderCheckIn(){
+  const area = document.getElementById('checkInArea');
   if(timerRunning){
     const s = getSportInfo(selectedSportId);
-    area.innerHTML = `
-      <div class="timer-card">
-        <div class="timer-label">运动中...</div>
-        <div class="timer-display running" id="timerDisplay">00:00</div>
-        <div class="timer-sport">${s.emoji} ${s.name}</div>
-        <div class="timer-actions">
-          <button class="btn btn-primary" id="stopTimerBtn">⏹ 停止并记录</button>
-        </div>
-      </div>
-    `;
+    area.innerHTML = `<div class="timer-card"><div class="timer-label">运动中...</div><div class="timer-display running" id="timerDisplay">00:00</div><div class="timer-sport">${s.emoji} ${s.name}</div><div class="timer-actions"><button class="btn btn-primary" id="stopTimerBtn">⏹ 停止并记录</button></div></div>`;
     document.getElementById('stopTimerBtn').onclick = stopTimer;
     startTimerTick();
   } else if(selectedSportId){
     const s = getSportInfo(selectedSportId);
-    area.innerHTML = `
-      <div class="timer-card">
-        <div class="timer-label">已选择运动项目</div>
-        <div class="timer-display" id="timerDisplay">00:00</div>
-        <div class="timer-sport">${s.emoji} ${s.name}（建议 ${s.min} 分钟）</div>
-        <div class="timer-actions">
-          <button class="btn btn-primary" id="startTimerBtn">▶ 开始运动</button>
-          <button class="btn btn-soft" id="quickLogBtn">⚡ 快速打卡</button>
-        </div>
-      </div>
-    `;
+    const tip = getPeriodSportTip();
+    const isAvoid = tip && tip.avoid.includes(s.id);
+    area.innerHTML = `<div class="timer-card"><div class="timer-label">已选择运动项目 ${isAvoid?'<span style="color:#e6337e;font-size:11px;">⚠️ 经期建议避开</span>':''}</div><div class="timer-display" id="timerDisplay">00:00</div><div class="timer-sport">${s.emoji} ${s.name}（建议 ${s.min} 分钟，约 ${calcCalories(s.id,s.min)} kcal）</div><div class="timer-actions"><button class="btn btn-primary" id="startTimerBtn">▶ 开始运动</button><button class="btn btn-soft" id="quickLogBtn">⚡ 快速打卡</button></div><div style="margin-top:12px;"><label style="font-size:12px;color:var(--text-soft);">训练感受</label><div class="feeling-selector" id="feelingSelector">${['轻松','适中','累','很累'].map(f=>`<div class="feeling-opt ${f===selectedFeeling?'selected':''}" data-f="${f}">${f}</div>`).join('')}</div></div></div>`;
     document.getElementById('startTimerBtn').onclick = startTimer;
     document.getElementById('quickLogBtn').onclick = quickLog;
+    document.querySelectorAll('#feelingSelector .feeling-opt').forEach(o=>{
+      o.onclick = ()=>{ selectedFeeling = o.dataset.f; document.querySelectorAll('#feelingSelector .feeling-opt').forEach(x=>x.classList.toggle('selected', x.dataset.f===selectedFeeling)); };
+    });
   } else {
     area.innerHTML = '<div class="timer-empty">请先选择一个运动项目</div>';
   }
 }
-
 function startTimer(){
   if(!selectedSportId){ toast('请先选择运动项目'); return; }
-  timerRunning = true;
-  timerStartTs = Date.now();
-  renderTimer();
-  toast('运动开始！加油 💪');
+  timerRunning = true; timerStartTs = Date.now();
+  renderCheckIn(); toast('运动开始！加油 💪');
 }
-
 function startTimerTick(){
   if(timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(()=>{
     if(!timerRunning) return;
     const elapsed = Math.floor((Date.now() - timerStartTs) / 1000);
     const display = document.getElementById('timerDisplay');
-    if(display){
-      const m = Math.floor(elapsed / 60);
-      const s = elapsed % 60;
-      display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    }
+    if(display){ const m = Math.floor(elapsed / 60); const s = elapsed % 60; display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
   }, 1000);
 }
-
 function stopTimer(){
   if(!timerRunning) return;
   const elapsedSec = Math.floor((Date.now() - timerStartTs) / 1000);
   timerRunning = false;
   if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-  
-  const duration = Math.max(1, Math.round(elapsedSec / 60)); // 至少1分钟
-  const record = {
-    id: selectedSportId,
-    duration: duration,
-    startTime: timerStartTs,
-    endTime: Date.now()
-  };
+  const duration = Math.max(1, Math.round(elapsedSec / 60));
+  const record = { id: selectedSportId, duration, calories: calcCalories(selectedSportId, duration), feeling: selectedFeeling, startTime: timerStartTs, endTime: Date.now() };
   saveSportRecord(record);
-  
   const s = getSportInfo(selectedSportId);
-  toast(`${s.name} 记录成功！运动了 ${duration} 分钟 🎉`);
-  renderSportGrid();
-  renderTimer();
-  renderTodayDetail();
-  renderHome();
+  toast(`${s.name} 记录成功！${duration}分钟 ${record.calories}kcal 🎉`);
+  renderSportGrid(); renderCheckIn(); renderTodayDetail(); renderHome();
 }
-
-// 快速打卡（用预设时间）
 function quickLog(){
   if(!selectedSportId){ toast('请先选择运动项目'); return; }
   const s = getSportInfo(selectedSportId);
-  const record = {
-    id: selectedSportId,
-    duration: s.min,
-    startTime: 0,
-    endTime: Date.now()
-  };
+  const record = { id: selectedSportId, duration: s.min, calories: calcCalories(s.id, s.min), feeling: selectedFeeling, startTime: 0, endTime: Date.now() };
   saveSportRecord(record);
-  toast(`${s.name} 快速打卡 ${s.min} 分钟 ✅`);
-  renderSportGrid();
-  renderTodayDetail();
-  renderHome();
+  toast(`${s.name} 快速打卡 ${s.min}分钟 ${record.calories}kcal ✅`);
+  renderSportGrid(); renderTodayDetail(); renderHome();
 }
-
 function saveSportRecord(record){
   const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
@@ -1609,53 +2018,28 @@ function saveSportRecord(record){
   log[today].push(record);
   DB.set('sportLog', log);
 }
-
 function renderTodayDetail(){
-  const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
   const records = getTodayRecords(log);
   const el = document.getElementById('todayDetail');
-  if(!records.length){
-    el.innerHTML = '<div class="empty">今天还没有打卡记录</div>';
-    return;
-  }
+  if(!records.length){ el.innerHTML = '<div class="empty">今天还没有打卡记录</div>'; return; }
   el.innerHTML = records.slice().reverse().map((r,i)=>{
     const s = getSportInfo(r.id);
     const realIdx = records.length - 1 - i;
     let timeStr = '';
-    if(r.endTime){
-      const d = new Date(r.endTime);
-      timeStr = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-    }
-    return `<div class="today-detail-item">
-      <div class="td-emoji">${s?s.emoji:'🏃'}</div>
-      <div style="flex:1;">
-        <div class="td-name">${s?s.name:'未知'}</div>
-        ${timeStr?`<div class="td-time">完成于 ${timeStr}</div>`:''}
-      </div>
-      <div class="td-duration">${r.duration}分钟</div>
-      <button class="del-btn" onclick="delTodayRecord(${realIdx})" title="删除">✕</button>
-    </div>`;
+    if(r.endTime){ const d = new Date(r.endTime); timeStr = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+    return `<div class="today-detail-item"><div class="td-emoji">${s?s.emoji:'🏃'}</div><div style="flex:1;"><div class="td-name">${s?s.name:'未知'} <span style="font-size:10px;color:var(--text-soft);">${r.feeling||''}</span></div>${timeStr?`<div class="td-time">完成于 ${timeStr} · ${r.calories||0}kcal</div>`:`<div class="td-time">${r.calories||0}kcal</div>`}</div><div class="td-duration">${r.duration}分钟</div><button class="del-btn" onclick="delTodayRecord(${realIdx})" title="删除">✕</button></div>`;
   }).join('');
 }
-
 function delTodayRecord(idx){
   if(!confirm('确定删除这条打卡记录吗？')) return;
   const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
-  if(log[today]){
-    log[today].splice(idx, 1);
-    if(log[today].length === 0) delete log[today];
-    DB.set('sportLog', log);
-  }
+  if(log[today]){ log[today].splice(idx, 1); if(log[today].length === 0) delete log[today]; DB.set('sportLog', log); }
   toast('记录已删除');
-  renderSportGrid();
-  renderTodayDetail();
-  renderHome();
+  renderSportGrid(); renderTodayDetail(); renderHome();
 }
-
 function renderSportSummary(){
-  const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
   const todayRecords = getTodayRecords(log);
   const todayCount = todayRecords.length;
@@ -1664,54 +2048,20 @@ function renderSportSummary(){
   document.getElementById('todayMin').textContent = totalMin;
   let streak = 0;
   const d = new Date();
-  while(true){
-    const key = d.toDateString();
-    if(log[key] && log[key].length>0){ streak++; d.setDate(d.getDate()-1); }
-    else break;
-  }
+  while(true){ const key = d.toDateString(); if(log[key] && log[key].length>0){ streak++; d.setDate(d.getDate()-1); } else break; }
   document.getElementById('streak').textContent = streak;
-
   const wc = document.getElementById('weekChart');
   const days = [];
   const labels = ['日','一','二','三','四','五','六'];
-  for(let i=6;i>=0;i--){
-    const dd = new Date();
-    dd.setDate(dd.getDate()-i);
-    const key = dd.toDateString();
-    const cnt = (log[key]||[]).length;
-    const dayIdx = dd.getDay();
-    const isToday = i===0;
-    days.push({cnt, label:labels[dayIdx], isToday});
-  }
+  for(let i=6;i>=0;i--){ const dd = new Date(); dd.setDate(dd.getDate()-i); const key = dd.toDateString(); const cnt = (log[key]||[]).length; days.push({cnt, label:labels[dd.getDay()], isToday:i===0}); }
   const max = Math.max(1, ...days.map(d=>d.cnt));
-  wc.innerHTML = days.map(d=>`
-    <div class="week-bar-wrap ${d.isToday?'today':''}">
-      <div style="flex:1;display:flex;align-items:flex-end;width:100%;justify-content:center;">
-        <div class="week-bar" style="height:${d.cnt/max*70+4}px"></div>
-      </div>
-      <div class="day">${d.label}</div>
-    </div>
-  `).join('');
-
-  let totalDays=0, totalItems=0, totalMinAll=0;
-  Object.entries(log).forEach(([k,v])=>{
-    if(v.length){
-      totalDays++; totalItems+=v.length;
-      v.forEach(r=>{
-        const dur = typeof r === 'string' ? getSportDefaultMin(r) : r.duration;
-        totalMinAll += dur;
-      });
-    }
-  });
-  document.getElementById('sportStats').innerHTML = `
-    <div>📅 累计打卡：<b style="color:var(--pink-600);">${totalDays}</b> 天</div>
-    <div>✅ 累计项目：<b style="color:var(--pink-600);">${totalItems}</b> 次</div>
-    <div>⏱️ 累计时长：<b style="color:var(--pink-600);">${totalMinAll}</b> 分钟</div>
-    <div style="margin-top:8px;color:var(--text-soft);font-size:12px;">${getSportBadge(totalItems)}</div>
-  `;
+  wc.innerHTML = days.map(d=>`<div class="week-bar-wrap ${d.isToday?'today':''}"><div style="flex:1;display:flex;align-items:flex-end;width:100%;justify-content:center;"><div class="week-bar" style="height:${d.cnt/max*70+4}px"></div></div><div class="day">${d.label}</div></div>`).join('');
+  let totalDays=0, totalItems=0, totalMinAll=0, totalCalAll=0;
+  Object.entries(log).forEach(([k,v])=>{ if(v.length){ totalDays++; totalItems+=v.length; v.forEach(r=>{ const nr=normalizeSportRecord(r); totalMinAll+=nr.duration; totalCalAll+=nr.calories; }); } });
+  document.getElementById('sportStats').innerHTML = `<div>📅 累计打卡：<b style="color:var(--pink-600);">${totalDays}</b> 天</div><div>✅ 累计项目：<b style="color:var(--pink-600);">${totalItems}</b> 次</div><div>⏱️ 累计时长：<b style="color:var(--pink-600);">${totalMinAll}</b> 分钟</div><div>🔥 累计消耗：<b style="color:var(--pink-600);">${totalCalAll}</b> kcal</div><div style="margin-top:8px;color:var(--text-soft);font-size:12px;">${getSportBadge(totalItems)}</div>`;
 }
 function getSportBadge(n){
-  if(n===0) return '开始你的第一次��卡吧 💕';
+  if(n===0) return '开始你的第一次打卡吧 💕';
   if(n<7) return '萌新运动家 🌱';
   if(n<20) return '运动小达人 🌟';
   if(n<50) return '健身女神 💪';
@@ -1722,11 +2072,9 @@ function clearTodaySport(){
   const log = DB.get('sportLog',{});
   if(!log[today] || !log[today].length){ toast('今日还没有打卡记录'); return; }
   if(!confirm('确定清空今日所有打卡记录吗？')) return;
-  delete log[today];
-  DB.set('sportLog', log);
+  delete log[today]; DB.set('sportLog', log);
   toast('今日打卡已清空');
-  renderSportGrid();
-  renderHome();
+  renderSportGrid(); renderTodayDetail(); renderHome();
 }
 function clearAllSport(){
   const log = DB.get('sportLog',{});
@@ -1734,8 +2082,55 @@ function clearAllSport(){
   if(!confirm('确定清空所有运动记录吗？此操作不可恢复！')) return;
   DB.set('sportLog', {});
   toast('所有运动记录已清空');
-  renderSportGrid();
-  renderHome();
+  renderSportGrid(); renderHome();
+}
+function renderSportMonthlyReport(){
+  const monthStr = document.getElementById('sportReportMonth').value;
+  if(!monthStr){ toast('请选择月份'); return; }
+  const [year, month] = monthStr.split('-').map(Number);
+  const log = DB.get('sportLog',{});
+  const area = document.getElementById('sportReportArea');
+  let totalDays=0, totalItems=0, totalMin=0, totalCal=0;
+  const catFreq = {};
+  Object.entries(log).forEach(([dateStr, records])=>{
+    const d = new Date(dateStr);
+    if(d.getFullYear()!==year || d.getMonth()!==month-1) return;
+    if(!records.length) return;
+    totalDays++; totalItems += records.length;
+    records.forEach(r=>{
+      const nr = normalizeSportRecord(r);
+      totalMin += nr.duration; totalCal += nr.calories;
+      const cat = Object.keys(SPORT_DATA).find(c=>SPORT_DATA[c].some(s=>s.id===nr.id));
+      if(cat) catFreq[cat] = (catFreq[cat]||0) + 1;
+    });
+  });
+  if(totalDays === 0){ area.innerHTML = '<div class="empty">该月份没有运动记录</div>'; return; }
+  const catRows = Object.entries(catFreq).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat-row"><span>${c}</span><b>${n} 次</b></div>`).join('');
+  area.innerHTML = `<div class="report-card"><div class="stat-row"><span>打卡天数</span><b>${totalDays} 天</b></div><div class="stat-row"><span>打卡总次数</span><b>${totalItems} 次</b></div><div class="stat-row"><span>总运动时长</span><b>${totalMin} 分钟</b></div><div class="stat-row"><span>总消耗热量</span><b>${totalCal} kcal</b></div><div style="margin-top:8px;font-size:13px;font-weight:600;color:var(--pink-600);">各类运动频次</div>${catRows}<div class="analysis">📊 ${year}年${month}月运动汇总：共打卡 ${totalDays} 天 ${totalItems} 次，运动 ${totalMin} 分钟，消耗 ${totalCal} kcal。${totalDays>=15?'运动非常规律，坚持得很好！💪':totalDays>=8?'运动频率不错，继续保持！🌟':'运动偏少，建议每周至少运动3天哦～🌱'}</div></div>`;
+}
+function renderSportHistory(){
+  const dateStr = document.getElementById('sportHistoryDate').value;
+  const area = document.getElementById('sportHistoryArea');
+  if(!dateStr){
+    const log = DB.get('sportLog',{});
+    const dates = Object.keys(log).filter(k=>log[k]&&log[k].length).sort((a,b)=>new Date(b)-new Date(a)).slice(0,7);
+    if(!dates.length){ area.innerHTML = '<div class="empty">暂无历史记录</div>'; return; }
+    area.innerHTML = dates.map(d=>{
+      const records = log[d].map(normalizeSportRecord);
+      const totalMin = records.reduce((s,r)=>s+r.duration,0);
+      const items = records.map(r=>{const s=getSportInfo(r.id);return `${s?s.emoji:''}${s?s.name:r.id} ${r.duration}'${r.calories?' '+r.calories+'kcal':''}`;}).join('、');
+      return `<div class="history-item"><div style="flex:1;"><div class="date">${d}</div><div class="note">${items||'无'}</div></div><span style="color:var(--pink-500);font-weight:600;">${totalMin}分钟</span></div>`;
+    }).join('');
+    return;
+  }
+  const d = new Date(dateStr + 'T00:00:00');
+  const key = d.toDateString();
+  const log = DB.get('sportLog',{});
+  const records = (log[key]||[]).map(normalizeSportRecord);
+  if(!records.length){ area.innerHTML = `<div class="empty">${dateStr} 没有运动记录</div>`; return; }
+  const totalMin = records.reduce((s,r)=>s+r.duration,0);
+  const totalCal = records.reduce((s,r)=>s+(r.calories||0),0);
+  area.innerHTML = `<div class="report-card"><div class="stat-row"><span>日期</span><b>${dateStr}</b></div><div class="stat-row"><span>运动次数</span><b>${records.length} 次</b></div><div class="stat-row"><span>总时长</span><b>${totalMin} 分钟</b></div><div class="stat-row"><span>总消耗</span><b>${totalCal} kcal</b></div></div>` + records.map(r=>{const s=getSportInfo(r.id);return `<div class="history-item"><div style="flex:1;"><div class="date">${s?s.emoji:''} ${s?s.name:r.id}</div><div class="note">${r.duration}分钟 · ${r.calories||0}kcal · 感受：${r.feeling||'适中'}</div></div></div>`;}).join('');
 }
 
 // ============================================================
@@ -2130,8 +2525,14 @@ document.querySelectorAll('.symptom-tag').forEach(t=>{
 document.getElementById('saveSymptomBtn').onclick = saveSymptoms;
 document.getElementById('periodStartBtn').onclick = periodStart;
 document.getElementById('periodEndBtn').onclick = periodEnd;
+document.getElementById('savePeriodSettingsBtn').onclick = savePeriodSettings;
+document.getElementById('addManualPeriodBtn').onclick = addManualPeriod;
+document.getElementById('genPeriodReportBtn').onclick = renderPeriodMonthlyReport;
+document.getElementById('clearAllPeriodBtn').onclick = clearAllPeriod;
 document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
 document.getElementById('clearAllSportBtn').onclick = clearAllSport;
+document.getElementById('genSportReportBtn').onclick = renderSportMonthlyReport;
+document.getElementById('querySportHistoryBtn').onclick = renderSportHistory;
 
 // 用户资料区事件绑定
 (function(){

@@ -856,24 +856,6 @@ body::after{
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="icon">📊</span>月度运动报表</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-        <input type="month" id="sportReportMonth" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
-        <button class="btn btn-primary" id="genSportReportBtn" style="flex-shrink:0;">生成报表</button>
-      </div>
-      <div id="sportReportArea"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🔍</span>历史记录查询</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <input type="date" id="sportHistoryDate" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
-        <button class="btn btn-primary" id="querySportHistoryBtn" style="flex-shrink:0;">查询</button>
-      </div>
-      <div id="sportHistoryArea"></div>
-    </div>
-
-    <div class="card">
       <div class="card-title"><span class="icon">🏆</span>累积成就</div>
       <div id="sportStats" style="font-size:13px;line-height:1.8;"></div>
       <button class="btn btn-danger btn-block" id="clearAllSportBtn" style="margin-top:12px;">🗑 清空所有运动记录</button>
@@ -2208,55 +2190,6 @@ function clearAllSport(){
   toast('所有运动记录已清空');
   renderSportGrid(); renderHome();
 }
-function renderSportMonthlyReport(){
-  const monthStr = document.getElementById('sportReportMonth').value;
-  if(!monthStr){ toast('请选择月份'); return; }
-  const [year, month] = monthStr.split('-').map(Number);
-  const log = DB.get('sportLog',{});
-  const area = document.getElementById('sportReportArea');
-  let totalDays=0, totalItems=0, totalMin=0, totalCal=0;
-  const catFreq = {};
-  Object.entries(log).forEach(([dateStr, records])=>{
-    const d = new Date(dateStr);
-    if(d.getFullYear()!==year || d.getMonth()!==month-1) return;
-    if(!records.length) return;
-    totalDays++; totalItems += records.length;
-    records.forEach(r=>{
-      const nr = normalizeSportRecord(r);
-      totalMin += nr.duration; totalCal += nr.calories;
-      const cat = Object.keys(SPORT_DATA).find(c=>SPORT_DATA[c].some(s=>s.id===nr.id));
-      if(cat) catFreq[cat] = (catFreq[cat]||0) + 1;
-    });
-  });
-  if(totalDays === 0){ area.innerHTML = '<div class="empty">该月份没有运动记录</div>'; return; }
-  const catRows = Object.entries(catFreq).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat-row"><span>${c}</span><b>${n} 次</b></div>`).join('');
-  area.innerHTML = `<div class="report-card"><div class="stat-row"><span>打卡天数</span><b>${totalDays} 天</b></div><div class="stat-row"><span>打卡总次数</span><b>${totalItems} 次</b></div><div class="stat-row"><span>总运动时长</span><b>${totalMin} 分钟</b></div><div class="stat-row"><span>总消耗热量</span><b>${totalCal} kcal</b></div><div style="margin-top:8px;font-size:13px;font-weight:600;color:var(--pink-600);">各类运动频次</div>${catRows}<div class="analysis">📊 ${year}年${month}月运动汇总：共打卡 ${totalDays} 天 ${totalItems} 次，运动 ${totalMin} 分钟，消耗 ${totalCal} kcal。${totalDays>=15?'运动非常规律，坚持得很好！💪':totalDays>=8?'运动频率不错，继续保持！🌟':'运动偏少，建议每周至少运动3天哦～🌱'}</div></div>`;
-}
-function renderSportHistory(){
-  const dateStr = document.getElementById('sportHistoryDate').value;
-  const area = document.getElementById('sportHistoryArea');
-  if(!dateStr){
-    const log = DB.get('sportLog',{});
-    const dates = Object.keys(log).filter(k=>log[k]&&log[k].length).sort((a,b)=>new Date(b)-new Date(a)).slice(0,7);
-    if(!dates.length){ area.innerHTML = '<div class="empty">暂无历史记录</div>'; return; }
-    area.innerHTML = dates.map(d=>{
-      const records = log[d].map(normalizeSportRecord);
-      const totalMin = records.reduce((s,r)=>s+r.duration,0);
-      const items = records.map(r=>{const s=getSportInfo(r.id);return `${s?s.emoji:''}${s?s.name:r.id} ${r.duration}'${r.calories?' '+r.calories+'kcal':''}`;}).join('、');
-      return `<div class="history-item"><div style="flex:1;"><div class="date">${d}</div><div class="note">${items||'无'}</div></div><span style="color:var(--pink-500);font-weight:600;">${totalMin}分钟</span></div>`;
-    }).join('');
-    return;
-  }
-  const d = new Date(dateStr + 'T00:00:00');
-  const key = d.toDateString();
-  const log = DB.get('sportLog',{});
-  const records = (log[key]||[]).map(normalizeSportRecord);
-  if(!records.length){ area.innerHTML = `<div class="empty">${dateStr} 没有运动记录</div>`; return; }
-  const totalMin = records.reduce((s,r)=>s+r.duration,0);
-  const totalCal = records.reduce((s,r)=>s+(r.calories||0),0);
-  area.innerHTML = `<div class="report-card"><div class="stat-row"><span>日期</span><b>${dateStr}</b></div><div class="stat-row"><span>运动次数</span><b>${records.length} 次</b></div><div class="stat-row"><span>总时长</span><b>${totalMin} 分钟</b></div><div class="stat-row"><span>总消耗</span><b>${totalCal} kcal</b></div></div>` + records.map(r=>{const s=getSportInfo(r.id);return `<div class="history-item"><div style="flex:1;"><div class="date">${s?s.emoji:''} ${s?s.name:r.id}</div><div class="note">${r.duration}分钟 · ${r.calories||0}kcal · 感受：${r.feeling||'适中'}</div></div></div>`;}).join('');
-}
-
 // ============================================================
 // 造型师模块（来自 stylist）
 // ============================================================
@@ -2959,8 +2892,6 @@ document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
 document.getElementById('toggleManualSportBtn').onclick = toggleManualSportPanel;
 document.getElementById('addManualSportBtn').onclick = addManualSport;
 document.getElementById('clearAllSportBtn').onclick = clearAllSport;
-document.getElementById('genSportReportBtn').onclick = renderSportMonthlyReport;
-document.getElementById('querySportHistoryBtn').onclick = renderSportHistory;
 
 // 数据管理事件绑定
 document.getElementById('backupNowBtn').onclick = ()=>backupNow(true);

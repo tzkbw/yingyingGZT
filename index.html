@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="莹莹工作台">
 <meta name="theme-color" content="#ffb8d1">
-<meta name="description" content="专属私人工作台 - 时间概览、经期记录、运动打卡、穿搭造型">
+<meta name="description" content="专属私人工作台 - 时间概览、生理周期、锻炼身体、穿搭造型">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -245,7 +245,7 @@ body::after{
 .section-title h2{font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:6px;}
 .section-title .more{font-size:12px;color:var(--milk-primary-d);cursor:pointer;}
 
-/* ===== 经期记录 ===== */
+/* ===== 生理周期 ===== */
 /* 日历组件 */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .cal-header .cal-title{font-size:15px;font-weight:700;color:var(--text-main);}
@@ -264,8 +264,13 @@ body::after{
   font-size:13px;border-radius:8px;position:relative;cursor:default;
   color:var(--text-main);background:transparent;gap:1px;
 }
-.cal-cell.sport{padding:2px 1px;aspect-ratio:auto;min-height:48px;}
-.cal-cell.sport span{display:block;text-align:center;}
+.cal-cell.sport{padding:1px;overflow:hidden;}
+.cal-cell.sport .sport-date{font-size:10px;font-weight:700;line-height:1.2;display:block;text-align:center;}
+.cal-cell.sport .sport-items{display:flex;flex-direction:column;gap:0;overflow:hidden;max-height:60%;}
+.cal-cell.sport .sport-item{
+  font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;text-align:center;display:block;
+}
 .cal-cell.sport::after{
   content:"";position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:#fff;
 }
@@ -649,14 +654,14 @@ body::after{
   <div class="nav-item" data-page="period">
     <div class="nav-icon">🌸</div>
     <div class="nav-text">
-      <div class="nav-name">经期记录</div>
+      <div class="nav-name">生理周期</div>
       <div class="nav-desc">周期追踪 · 症状备注</div>
     </div>
   </div>
   <div class="nav-item" data-page="sport">
     <div class="nav-icon">🏃‍♀️</div>
     <div class="nav-text">
-      <div class="nav-name">运动计划打卡</div>
+      <div class="nav-name">锻炼身体</div>
       <div class="nav-desc">每日打卡 · 累积统计</div>
     </div>
   </div>
@@ -701,10 +706,10 @@ body::after{
     </div>
   </div>
 
-  <!-- 经期记录 -->
+  <!-- 生理周期 -->
   <div class="page" id="page-period">
     <div class="card">
-      <div class="card-title"><span class="icon">🌸</span>经期记录</div>
+      <div class="card-title"><span class="icon">🌸</span>生理周期</div>
       <div class="period-status" id="periodStatus">
         <div>
           <div class="label">当前状态</div>
@@ -786,20 +791,11 @@ body::after{
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="icon">📊</span>月度经期报表</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-        <input type="month" id="periodReportMonth" style="flex:1;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
-        <button class="btn btn-primary" id="genPeriodReportBtn" style="flex-shrink:0;">生成报表</button>
-      </div>
-      <div id="periodReportArea"></div>
-    </div>
-
-    <div class="card">
-      <button class="btn btn-danger btn-block" id="clearAllPeriodBtn">🗑 清空全部经期记录</button>
+      <button class="btn btn-danger btn-block" id="clearAllPeriodBtn">🗑 清空全部生理周期记录</button>
     </div>
   </div>
 
-  <!-- 运动打卡 -->
+  <!-- 锻炼身体 -->
   <div class="page" id="page-sport">
     <div class="card" id="periodSportTipCard">
       <div class="card-title"><span class="icon">🌸</span>经期运动提醒</div>
@@ -1218,7 +1214,7 @@ function renderHome(){
   const ov = document.getElementById('homeOverview');
   // 经期状态
   const period = DB.get('period', {current:null, history:[]});
-  let periodInfo = '暂无经期记录';
+  let periodInfo = '暂无生理周期记录';
   if(period.current){
     const days = Math.floor((Date.now()-period.current.start)/86400000)+1;
     periodInfo = `经期第 ${days} 天 🌸`;
@@ -1394,89 +1390,11 @@ function editPeriodRecord(idx){
   renderHome();
 }
 
-function analyzeRegularity(history){
-  if(history.length < 2) return {level:'数据不足', desc:'至少需要2个周期数据才能分析规律性'};
-  const cycles = [];
-  for(let i=1; i<history.length; i++){
-    if(history[i].cycleLen) cycles.push(history[i].cycleLen);
-  }
-  if(cycles.length < 2) return {level:'数据不足', desc:'至少需要2个周期数据才能分析规律性'};
-  const avg = cycles.reduce((a,b)=>a+b, 0) / cycles.length;
-  const variance = cycles.reduce((s,c)=>s + (c-avg)**2, 0) / cycles.length;
-  const stdDev = Math.sqrt(variance);
-  let level, desc;
-  if(stdDev <= 2){ level='规则'; desc=`周期非常规律，波动 ±${stdDev.toFixed(1)} 天`; }
-  else if(stdDev <= 5){ level='基本规则'; desc=`周期略有波动，波动 ±${stdDev.toFixed(1)} 天`; }
-  else { level='不规则'; desc=`周期波动较大（±${stdDev.toFixed(1)} 天），建议关注`; }
-  return {level, desc, avg:avg.toFixed(1)};
-}
-
-function renderPeriodMonthlyReport(){
-  const monthStr = document.getElementById('periodReportMonth').value;
-  if(!monthStr){ toast('请选择月份'); return; }
-  const [year, month] = monthStr.split('-').map(Number);
-  const period = DB.get('period', {current:null, history:[]});
-  const settings = getPeriodSettings();
-  // 当月来潮记录
-  const monthRecords = period.history.filter(h=>{
-    const d = new Date(h.start);
-    return d.getFullYear() === year && d.getMonth() === month - 1;
-  });
-  const area = document.getElementById('periodReportArea');
-  if(!monthRecords.length && !(period.current && new Date(period.current.start).getMonth()===month-1 && new Date(period.current.start).getFullYear()===year)){
-    area.innerHTML = '<div class="empty">该月份没有经期记录</div>';
-    return;
-  }
-  const allRecords = [...monthRecords];
-  if(period.current && new Date(period.current.start).getMonth()===month-1 && new Date(period.current.start).getFullYear()===year){
-    allRecords.push({...period.current, end:Date.now()});
-  }
-  const count = allRecords.length;
-  const avgCycle = allRecords.reduce((s,h)=>s + (h.cycleLen||settings.avgCycle), 0) / (count || 1);
-  const avgPeriodLen = allRecords.reduce((s,h)=>s + (h.periodLen || (h.end?Math.floor((h.end-h.start)/86400000)+1:settings.avgPeriodLen)), 0) / (count || 1);
-  // 周期长度分类
-  let cycleType;
-  if(avgCycle < 21) cycleType = '月经频发（<21天）';
-  else if(avgCycle <= 25) cycleType = '偏短（21-25天）';
-  else if(avgCycle <= 30) cycleType = '正常（26-30天）';
-  else if(avgCycle <= 35) cycleType = '偏长（31-35天）';
-  else cycleType = '月经稀发（>35天）';
-  // 规律性
-  const regularity = analyzeRegularity(period.history);
-  // 分析文本
-  let analysis = `📊 ${year}年${month}月经期分析报告\n\n`;
-  analysis += `本月来潮 ${count} 次，平均周期 ${avgCycle.toFixed(0)} 天（${cycleType}），经期平均 ${avgPeriodLen.toFixed(1)} 天。\n`;
-  analysis += `周期规律性：${regularity.level}。${regularity.desc}。\n`;
-  if(avgCycle < 21 || avgCycle > 35){
-    analysis += `⚠️ 周期长度异常，建议咨询医生。\n`;
-  }
-  if(avgPeriodLen > 7){
-    analysis += `⚠️ 经期偏长（>7天），可能经量较多，注意补铁。\n`;
-  }
-  if(regularity.level === '不规则'){
-    analysis += `⚠️ 周期不规律，可能受压力、作息、饮食影响，建议记录更多周期观察趋势。\n`;
-  }
-  if(regularity.level === '规则' && avgCycle >= 26 && avgCycle <= 30 && avgPeriodLen <= 7){
-    analysis += `✅ 经期规律正常，继续保持健康的生活方式！\n`;
-  }
-  analysis += `\n💡 建议：保持规律作息、均衡饮食、适度运动，经期注意保暖。`;
-
-  area.innerHTML = `
-    <div class="report-card">
-      <div class="stat-row"><span>当月来潮次数</span><b>${count} 次</b></div>
-      <div class="stat-row"><span>平均周期</span><b>${avgCycle.toFixed(0)} 天（${cycleType}）</b></div>
-      <div class="stat-row"><span>经期平均时长</span><b>${avgPeriodLen.toFixed(1)} 天</b></div>
-      <div class="stat-row"><span>周期规律性</span><b>${regularity.level}</b></div>
-      <div class="analysis">${analysis.replace(/\n/g,'<br>')}</div>
-    </div>
-  `;
-}
-
 function clearAllPeriod(){
-  if(!confirm('确定清空全部经期记录吗？此操作不可恢复！')) return;
+  if(!confirm('确定清空全部生理周期记录吗？此操作不可恢复！')) return;
   DB.set('period', {current:null, history:[]});
   DB.set('symptoms', {});
-  toast('经期记录已清空');
+  toast('生理周期记录已清空');
   renderPeriod();
   renderHome();
 }
@@ -1598,7 +1516,7 @@ function periodEnd(){
   renderHome();
 }
 function delPeriodRecord(idx){
-  if(!confirm('确定删除这条经期记录吗？')) return;
+  if(!confirm('确定删除这条生理周期记录吗？')) return;
   const period = DB.get('period', {current:null, history:[]});
   period.history.splice(idx, 1);
   DB.set('period', period);
@@ -1658,14 +1576,15 @@ function buildCalendar(containerId, year, month, markers, opts){
       else if(marker.type === 'ovulation-period') classes += ' ovulation-period';
       
       if(marker.type === 'sport' || marker.type === 'period-sport'){
-        // 运动日历：显示运动名称 + 时长
-        const itemNames = (marker.items||[]).map(i=>{
+        // 运动日历：显示运动名称 + 时长（限制显示，防止撑高格子）
+        const itemNames = (marker.items||[]).slice(0,2).map(i=>{
           const emoji = i.emoji||'';
           const name = i.name||'';
           const dur = i.duration||0;
-          return `<span style="font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${emoji}${name} ${dur}'</span>`;
+          return `<span class="sport-item">${emoji}${name} ${dur}'</span>`;
         }).join('');
-        inner = `<span style="font-size:10px;font-weight:700;line-height:1;">${d}</span>${itemNames}`;
+        const more = (marker.items||[]).length > 2 ? `<span class="sport-item" style="opacity:0.6;">+${marker.items.length-2}</span>` : '';
+        inner = `<span class="sport-date">${d}</span><div class="sport-items">${itemNames}${more}</div>`;
       } else if(marker.type === 'ovulation-day') {
         inner = `<span style="font-size:10px;font-weight:700;">${d}</span><span style="font-size:8px;">卵</span>`;
       } else if(marker.duration) {
@@ -1927,7 +1846,7 @@ function periodEnd(){
   renderHome();
 }
 function delPeriodRecord(idx){
-  if(!confirm('确定删除这条经期记录吗？')) return;
+  if(!confirm('确定删除这条生理周期记录吗？')) return;
   const period = DB.get('period', {current:null, history:[]});
   period.history.splice(idx, 1);
   DB.set('period', period);
@@ -2886,7 +2805,6 @@ document.getElementById('periodStartBtn').onclick = periodStart;
 document.getElementById('periodEndBtn').onclick = periodEnd;
 document.getElementById('savePeriodSettingsBtn').onclick = savePeriodSettings;
 document.getElementById('addManualPeriodBtn').onclick = addManualPeriod;
-document.getElementById('genPeriodReportBtn').onclick = renderPeriodMonthlyReport;
 document.getElementById('clearAllPeriodBtn').onclick = clearAllPeriod;
 document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
 document.getElementById('toggleManualSportBtn').onclick = toggleManualSportPanel;

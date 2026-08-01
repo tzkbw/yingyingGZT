@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pink-desk-v8';
+const CACHE_NAME = 'pink-desk-v9';
 const ASSETS = [
   './',
   './index.html',

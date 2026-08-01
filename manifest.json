@@ -4,7 +4,7 @@
   "description": "专属私人工作台 - 时间概览、生理周期、锻炼身体、穿搭造型",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f0fdfa",
+  "background_color": "#2a1812",
   "theme_color": "#34d8a8",
   "orientation": "portrait",
   "scope": ".",

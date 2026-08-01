@@ -15,15 +15,24 @@
 <title>莹莹的工作台 · My Sweet Desk</title>
 <style>
 :root{
-  /* 粉色主基调（原 index）*/
-  --pink-50:#f0fdfb;
-  --pink-100:#ccfbf3;
-  --pink-200:#99f6e4;
-  --pink-300:#5eead4;
-  --pink-400:#2dd4bf;
+  /* 薄荷绿主色阶 */
+  --pink-50:#f0fdfa;
+  --pink-100:#d1faf0;
+  --pink-200:#a7f3d6;
+  --pink-300:#6ee7b7;
+  --pink-400:#34d8a8;
   --pink-500:#14b8a6;
   --pink-600:#0d9488;
   --pink-700:#0f766e;
+  /* 粉色辅助色阶（薄荷+粉混合搭配）*/
+  --rose-50:#fff5fa;
+  --rose-100:#ffe4f0;
+  --rose-200:#ffc9e3;
+  --rose-300:#ffa6d2;
+  --rose-400:#ff7ab8;
+  --rose-500:#ff4ea1;
+  --rose-600:#e6337e;
+  --rose-700:#b51e5c;
   /* 奶茶暖棕辅助色（来自 stylist，融入莹莹工作台体系）*/
   --milk:#faf7f5;
   --milk-2:#f3ede8;
@@ -37,12 +46,12 @@
   --milk-blue:#7b9ab0;
   --milk-purple:#9b7ba8;
   /* 文字与通用 */
-  --text-main:#1a4a47;
-  --text-soft:#5a807d;
-  --text-3:#8aa8a4;
-  --card-bg:rgba(255,255,255,0.85);
-  --shadow:0 8px 24px rgba(20,184,166,0.18);
-  --shadow-soft:0 4px 14px rgba(20,184,166,0.12);
+  --text-main:#3a3a4a;
+  --text-soft:#7a6a7a;
+  --text-3:#a89b9e;
+  --card-bg:rgba(255,255,255,0.88);
+  --shadow:0 8px 24px rgba(45,212,191,0.12);
+  --shadow-soft:0 4px 14px rgba(255,122,184,0.10);
   --shadow-milk:0 2px 12px rgba(44,36,32,0.06);
   --radius:18px;
   --radius-sm:12px;
@@ -53,7 +62,7 @@ html,body{height:100%;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI Emoji","Noto Color Emoji",sans-serif;
   color:var(--text-main);
-  background:linear-gradient(160deg,#ccfbf3 0%,#99f6e4 35%,#5eead4 70%,#2dd4bf 100%);
+  background:linear-gradient(160deg,#d1faf0 0%,#a7f3d6 25%,#ffe4f0 65%,#ffc9e3 100%);
   min-height:100vh;
   overflow-x:hidden;
   position:relative;
@@ -63,11 +72,11 @@ body::before,body::after{
   content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0;
 }
 body::before{
-  width:300px;height:300px;background:radial-gradient(circle,rgba(153,246,228,0.6) 0%,transparent 70%);
+  width:300px;height:300px;background:radial-gradient(circle,rgba(167,243,214,0.55) 0%,transparent 70%);
   top:-100px;right:-80px;
 }
 body::after{
-  width:260px;height:260px;background:radial-gradient(circle,rgba(212,165,116,0.25) 0%,transparent 70%);
+  width:260px;height:260px;background:radial-gradient(circle,rgba(255,201,227,0.5) 0%,transparent 70%);
   bottom:-80px;left:-60px;
 }
 /* 浮动爱心 */
@@ -88,12 +97,12 @@ body::after{
   position:fixed;top:0;left:0;right:0;z-index:50;
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 16px 10px;
-  background:linear-gradient(180deg,rgba(204,251,243,0.95) 0%,rgba(204,251,243,0.6) 100%);
+  background:linear-gradient(180deg,rgba(209,250,240,0.95) 0%,rgba(255,228,240,0.7) 100%);
   backdrop-filter:blur(10px);
 }
 .menu-btn{
   width:42px;height:42px;border-radius:50%;
-  background:linear-gradient(135deg,#2dd4bf,#14b8a6);
+  background:linear-gradient(135deg,#34d8a8,#ff7ab8);
   border:none;cursor:pointer;
   display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;
   box-shadow:var(--shadow);
@@ -105,10 +114,10 @@ body::after{
   transition:all 0.3s;
 }
 .topbar-title{
-  font-size:16px;font-weight:600;color:var(--pink-600);
+  font-size:16px;font-weight:600;color:#e6337e;
   display:flex;align-items:center;gap:6px;
 }
-.topbar-title .dot{width:8px;height:8px;border-radius:50%;background:var(--pink-400);}
+.topbar-title .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#34d8a8,#ff7ab8);}
 
 /* ===== 抽屉菜单 ===== */
 .drawer-mask{
@@ -119,28 +128,28 @@ body::after{
 .drawer-mask.show{opacity:1;pointer-events:auto;}
 .drawer{
   position:fixed;top:0;left:0;bottom:0;width:78%;max-width:320px;z-index:101;
-  background:linear-gradient(160deg,#f0fdfb 0%,#ccfbf3 100%);
+  background:linear-gradient(160deg,#f0fdfa 0%,#d1faf0 50%,#ffe4f0 100%);
   transform:translateX(-105%);transition:transform 0.35s cubic-bezier(.22,.61,.36,1);
   padding:60px 18px 24px;
   overflow-y:auto;
-  box-shadow:4px 0 30px rgba(45,212,191,0.25);
+  box-shadow:4px 0 30px rgba(45,212,191,0.15);
 }
 .drawer.show{transform:translateX(0);}
 .drawer-close{
   position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;
-  border:none;background:#fff;color:var(--pink-500);font-size:18px;cursor:pointer;
+  border:none;background:#fff;color:#ff4ea1;font-size:18px;cursor:pointer;
   box-shadow:var(--shadow-soft);
 }
 .drawer-title{font-size:14px;color:var(--text-soft);margin-bottom:18px;padding-left:6px;}
-.drawer-title b{color:var(--pink-600);}
+.drawer-title b{color:#e6337e;}
 
 /* ===== 用户资料区（头像 + 用户名） ===== */
 .user-profile{
   display:flex;align-items:center;gap:14px;
   padding:16px 14px;margin-bottom:18px;border-radius:var(--radius);
-  background:linear-gradient(135deg,#fff 0%,#ccfbf3 100%);
+  background:linear-gradient(135deg,#fff 0%,#d1faf0 60%,#ffe4f0 100%);
   cursor:pointer;position:relative;overflow:hidden;
-  border:1.5px solid rgba(153,246,228,0.6);
+  border:1.5px solid rgba(167,243,214,0.5);
   box-shadow:var(--shadow-soft);
   transition:transform 0.2s;
 }
@@ -151,7 +160,7 @@ body::after{
 }
 .avatar-wrap{
   width:60px;height:60px;border-radius:50%;flex-shrink:0;position:relative;
-  background:linear-gradient(135deg,#99f6e4,#99f6e4);
+  background:linear-gradient(135deg,#a7f3d6,#ffc9e3);
   box-shadow:0 4px 12px rgba(45,212,191,0.3);
   overflow:hidden;display:flex;align-items:center;justify-content:center;
 }
@@ -165,7 +174,7 @@ body::after{
 .avatar-placeholder.hide{display:none;}
 .username-wrap{flex:1;min-width:0;}
 .username-text{
-  font-size:18px;font-weight:700;color:var(--pink-600);
+  font-size:18px;font-weight:700;color:#e6337e;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .nav-item{
@@ -176,13 +185,13 @@ body::after{
 }
 .nav-item:active{transform:scale(0.97);}
 .nav-item.active{
-  background:linear-gradient(135deg,#fff,#ccfbf3);
-  border-color:var(--pink-300);box-shadow:var(--shadow-soft);
+  background:linear-gradient(135deg,#fff,#d1faf0);
+  border-color:#ffa6d2;box-shadow:0 4px 14px rgba(255,122,184,0.12);
 }
 .nav-icon{
   width:44px;height:44px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:22px;
-  background:linear-gradient(135deg,#99f6e4,#99f6e4);
+  background:linear-gradient(135deg,#a7f3d6,#ffc9e3);
 }
 .nav-text .nav-name{font-size:16px;font-weight:600;color:var(--text-main);}
 .nav-text .nav-desc{font-size:12px;color:var(--text-soft);margin-top:2px;}
@@ -208,9 +217,9 @@ body::after{
 
 /* ===== 时钟卡片 ===== */
 .clock-card{
-  background:linear-gradient(135deg,#2dd4bf 0%,#14b8a6 100%);
+  background:linear-gradient(135deg,#34d8a8 0%,#ff7ab8 100%);
   border-radius:var(--radius);padding:22px 20px;color:#fff;
-  box-shadow:var(--shadow);position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#34d8a8,#ff7ab8);box-shadow:0 8px 24px rgba(255,122,184,0.15);position:relative;overflow:hidden;
 }
 .clock-card::before{
   content:"🌸";position:absolute;top:8px;right:14px;font-size:28px;opacity:0.6;
@@ -233,7 +242,7 @@ body::after{
 }
 .card-title{
   display:flex;align-items:center;gap:8px;
-  font-size:15px;font-weight:600;color:var(--pink-600);margin-bottom:12px;
+  font-size:15px;font-weight:600;color:var(--rose-600);margin-bottom:12px;
 }
 .card-title .icon{font-size:18px;}
 
@@ -252,7 +261,7 @@ body::after{
 .cal-nav{display:flex;gap:6px;}
 .cal-nav button{
   width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
-  background:#fff;color:var(--pink-500);font-size:14px;
+  background:#fff;color:#ff4ea1;font-size:14px;
   box-shadow:var(--shadow-soft);transition:transform .15s;
 }
 .cal-nav button:active{transform:scale(0.9);}
@@ -276,7 +285,7 @@ body::after{
 }
 .cal-cell.today::after{background:var(--pink-400);}
 .cal-cell.other-month{color:var(--text-3);opacity:0.4;}
-.cal-cell.today{font-weight:700;color:var(--pink-600);background:rgba(94,234,212,0.15);}
+.cal-cell.today{font-weight:700;color:#0d9488;background:rgba(167,243,214,0.3);}
 .cal-cell.period{
   background:linear-gradient(135deg,#ff7ab8,#ff4ea1);color:#fff;font-weight:600;
 }
@@ -285,7 +294,7 @@ body::after{
   background:rgba(255,166,210,0.25);color:#e6337e;
 }
 .cal-cell.sport{
-  background:rgba(200,155,123,0.2);color:var(--milk-primary-d);font-weight:600;
+  background:rgba(52,216,168,0.2);color:#0d9488;font-weight:600;
 }
 .cal-cell.period.sport{
   background:linear-gradient(135deg,#ff7ab8,#c89b7b);color:#fff;
@@ -306,39 +315,39 @@ body::after{
 .period-status{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px;border-radius:var(--radius-sm);
-  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);
+  background:linear-gradient(135deg,#f0fdfa,#d1faf0);
 }
 .period-status .label{font-size:12px;color:var(--text-soft);}
-.period-status .value{font-size:22px;font-weight:700;color:var(--pink-500);margin-top:4px;}
+.period-status .value{font-size:22px;font-weight:700;color:#ff4ea1;margin-top:4px;}
 .period-status .emoji{font-size:30px;}
 .period-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
 .period-stat{
   background:#fff;border-radius:var(--radius-sm);padding:12px;text-align:center;
-  border:1.5px solid var(--pink-100);
+  border:1.5px solid rgba(255,122,184,0.15);
 }
-.period-stat .num{font-size:20px;font-weight:700;color:var(--pink-600);}
+.period-stat .num{font-size:20px;font-weight:700;color:#0d9488;}
 .period-stat .lbl{font-size:11px;color:var(--text-soft);margin-top:2px;}
 
 /* 生理阶段标签 */
 .phase-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;}
-.phase-menstrual{background:#ff4ea1;}
-.phase-follicular{background:#8aa77a;}
+.phase-menstrual{background:linear-gradient(135deg,#ff7ab8,#ff4ea1);}
+.phase-follicular{background:linear-gradient(135deg,#34d8a8,#6ee7b7);}
 .phase-ovulation{background:#ffb347;}
-.phase-luteal{background:#9b7ba8;}
+.phase-luteal{background:linear-gradient(135deg,#9b7ba8,#c97b7b);}
 
 /* 月度报表 */
 .report-card{background:#fff;border-radius:var(--radius-sm);padding:14px;border:1px solid var(--pink-100);}
 .report-card .stat-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--pink-100);}
 .report-card .stat-row:last-child{border-bottom:none;}
-.report-card .analysis{margin-top:10px;padding:10px;background:linear-gradient(135deg,#f0fdfb,#f0fdfb);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-main);}
+.report-card .analysis{margin-top:10px;padding:10px;background:linear-gradient(135deg,#f0fdfa,#f0fdfa);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-main);}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:11px 18px;border-radius:24px;border:none;cursor:pointer;
   font-size:14px;font-weight:600;transition:all 0.2s;
 }
 .btn:active{transform:scale(0.96);}
-.btn-primary{background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#fff;box-shadow:var(--shadow-soft);}
-.btn-soft{background:#fff;color:var(--pink-600);border:1.5px solid var(--pink-200);}
+.btn-primary{background:linear-gradient(135deg,#34d8a8,#ff7ab8);color:#fff;box-shadow:var(--shadow-soft);}
+.btn-soft{background:#fff;color:var(--rose-500);border:1.5px solid var(--rose-200);}
 .btn-block{display:flex;width:100%;}
 .btn-sm{padding:8px 14px;font-size:12px;}
 /* 奶茶风格按钮（用于造型师功能）*/
@@ -351,23 +360,23 @@ body::after{
   background:#fff;border:1.5px solid var(--pink-100);color:var(--text-soft);
   cursor:pointer;transition:all 0.2s;
 }
-.symptom-tag.active{background:var(--pink-300);color:#fff;border-color:var(--pink-300);}
+.symptom-tag.active{background:linear-gradient(135deg,#6ee7b7,#ff7ab8);color:#fff;border-color:#ff7ab8;}
 .history-list{margin-top:8px;}
 .history-item{
   display:flex;justify-content:space-between;align-items:center;
   padding:10px 12px;border-radius:var(--radius-sm);background:#fff;
   margin-bottom:8px;font-size:13px;border:1px solid var(--pink-100);
 }
-.history-item .date{font-weight:600;color:var(--pink-600);}
+.history-item .date{font-weight:600;color:#e6337e;}
 .history-item .note{font-size:11px;color:var(--text-soft);margin-top:2px;}
 /* 通用删除按钮 */
 .del-btn{
   width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;
-  background:rgba(20,184,166,0.12);color:var(--pink-500);font-size:14px;
+  background:rgba(255,122,184,0.10);color:var(--pink-500);font-size:14px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
   transition:all 0.2s;
 }
-.del-btn:active{transform:scale(0.88);background:var(--pink-300);color:#fff;}
+.del-btn:active{transform:scale(0.88);background:#ffa6d2;color:#fff;}
 .del-btn-milk{
   background:rgba(200,155,123,0.15);color:var(--milk-primary-d);
 }
@@ -375,7 +384,7 @@ body::after{
 .btn-danger{
   background:#fff;color:#0d9488;border:1.5px solid var(--pink-200);
 }
-.btn-danger:active{background:var(--pink-100);}
+.btn-danger:active{background:#ffe4f0;}
 
 /* ===== 运动打卡 ===== */
 .sport-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
@@ -383,7 +392,7 @@ body::after{
   padding:8px 14px;border-radius:20px;font-size:13px;white-space:nowrap;
   background:#fff;border:1.5px solid var(--pink-100);color:var(--text-soft);cursor:pointer;
 }
-.sport-tab.active{background:var(--pink-400);color:#fff;border-color:var(--pink-400);}
+.sport-tab.active{background:linear-gradient(135deg,#34d8a8,#ff7ab8);color:#fff;border-color:#ff7ab8;}
 .sport-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
 .sport-chip{
   display:flex;flex-direction:column;align-items:center;gap:6px;
@@ -393,36 +402,36 @@ body::after{
 }
 .sport-chip:active{transform:scale(0.95);}
 .sport-chip.done{
-  background:linear-gradient(135deg,#99f6e4,#99f6e4);border-color:var(--pink-300);
+  background:linear-gradient(135deg,#a7f3d6,#ffc9e3);border-color:var(--pink-300);
 }
 .sport-chip .emoji{font-size:24px;}
 .sport-chip .name{font-size:11px;color:var(--text-main);}
-.sport-chip.done .name{color:var(--pink-600);font-weight:600;}
+.sport-chip.done .name{color:#e6337e;font-weight:600;}
 .sport-chip .check{
-  position:absolute;top:4px;right:6px;font-size:12px;color:var(--pink-500);display:none;
+  position:absolute;top:4px;right:6px;font-size:12px;color:#ff4ea1;display:none;
 }
 .sport-chip.done .check{display:block;}
 .sport-chip.selected{
-  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-color:var(--pink-400);
+  background:linear-gradient(135deg,#f0fdfa,#d1faf0);border-color:var(--pink-400);
   box-shadow:0 0 0 2px var(--pink-300);
 }
 .sport-chip.done .duration{
   position:absolute;bottom:4px;left:4px;right:4px;
-  font-size:9px;color:var(--pink-600);font-weight:600;text-align:center;
+  font-size:9px;color:#e6337e;font-weight:600;text-align:center;
   background:rgba(255,255,255,0.8);border-radius:4px;padding:1px 2px;
 }
 /* 运动计时器 */
 .timer-card{
   margin-top:12px;padding:18px;border-radius:var(--radius-sm);
-  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);
-  border:1.5px solid var(--pink-200);text-align:center;
+  background:linear-gradient(135deg,#f0fdfa,#d1faf0);
+  border:1.5px solid rgba(255,122,184,0.25);text-align:center;
 }
 .timer-card .timer-label{font-size:12px;color:var(--text-soft);margin-bottom:6px;}
 .timer-card .timer-display{
-  font-size:42px;font-weight:700;color:var(--pink-600);line-height:1;
+  font-size:42px;font-weight:700;color:#0d9488;line-height:1;
   font-variant-numeric:tabular-nums;letter-spacing:1px;
 }
-.timer-card .timer-display.running{color:var(--pink-500);animation:timerPulse 2s ease-in-out infinite;}
+.timer-card .timer-display.running{color:#ff4ea1;animation:timerPulse 2s ease-in-out infinite;}
 @keyframes timerPulse{50%{opacity:0.7;}}
 .timer-card .timer-sport{font-size:13px;color:var(--text-main);margin-top:8px;font-weight:600;}
 .timer-actions{display:flex;gap:10px;margin-top:14px;}
@@ -437,7 +446,7 @@ body::after{
 }
 .today-detail-item .td-emoji{font-size:20px;flex-shrink:0;}
 .today-detail-item .td-name{font-weight:600;color:var(--text-main);flex:1;}
-.today-detail-item .td-duration{color:var(--pink-500);font-weight:600;font-size:14px;}
+.today-detail-item .td-duration{color:#ff4ea1;font-weight:600;font-size:14px;}
 .today-detail-item .td-time{font-size:11px;color:var(--text-soft);}
 .today-detail-item .del-btn{width:24px;height:24px;font-size:12px;}
 
@@ -447,10 +456,10 @@ body::after{
   padding:6px 12px;border-radius:20px;font-size:12px;
   background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;transition:all 0.2s;
 }
-.feeling-opt.selected{background:var(--pink-400);color:#fff;border-color:var(--pink-400);}
+.feeling-opt.selected{background:linear-gradient(135deg,#34d8a8,#ff7ab8);color:#fff;border-color:#ff7ab8;}
 
 /* 开关 switch */
-.switch input:checked + .slider-track{background:var(--pink-400);}
+.switch input:checked + .slider-track{background:linear-gradient(135deg,#34d8a8,#ff7ab8);}
 .slider-track::before{
   content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;
   background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);
@@ -459,10 +468,10 @@ body::after{
 
 /* 经期运动提醒 */
 .period-sport-tip{
-  background:linear-gradient(135deg,#f0fdfb,#f0fdfb);border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,#f0fdfa,#f0fdfa);border-radius:var(--radius-sm);
   padding:12px;border:1.5px solid var(--pink-200);font-size:13px;line-height:1.7;
 }
-.period-sport-tip .tip-title{font-weight:700;color:var(--pink-600);margin-bottom:4px;}
+.period-sport-tip .tip-title{font-weight:700;color:#e6337e;margin-bottom:4px;}
 .period-sport-tip .avoid-list{color:var(--text-soft);font-size:12px;margin-top:4px;}
 
 /* 运动卡片经期标记 */
@@ -764,7 +773,7 @@ body::after{
       <div class="card-title"><span class="icon">📅</span>经期日历</div>
       <div id="periodCalendar"></div>
       <div class="cal-legend">
-        <div class="item"><div class="swatch" style="background:linear-gradient(135deg,#2dd4bf,#14b8a6);"></div>经期</div>
+        <div class="item"><div class="swatch" style="background:linear-gradient(135deg,#ff7ab8,#ff4ea1);"></div>经期</div>
         <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.25);"></div>预测期</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.3);border:2px solid #ffb347;"></div>排卵日</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.1);"></div>排卵期</div>
@@ -833,8 +842,8 @@ body::after{
         <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
       <button class="btn btn-soft btn-block" id="toggleManualSportBtn" style="margin-top:10px;">✍️ 手动补录打卡</button>
-      <div id="manualSportPanel" style="display:none;margin-top:10px;padding:12px;background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-radius:var(--radius-sm);">
-        <div style="font-size:13px;font-weight:600;color:var(--pink-600);margin-bottom:8px;">补录运动打卡记录</div>
+      <div id="manualSportPanel" style="display:none;margin-top:10px;padding:12px;background:linear-gradient(135deg,#d1faf0,#ffe4f0);border-radius:var(--radius-sm);">
+        <div style="font-size:13px;font-weight:600;color:#e6337e;margin-bottom:8px;">补录运动打卡记录</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
           <input type="date" id="manualSportDate" style="flex:1;min-width:130px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
           <input type="number" id="manualSportDuration" placeholder="时长(分钟)" min="1" max="600" style="flex:1;min-width:100px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
@@ -938,8 +947,8 @@ body::after{
     <div class="card-title"><span class="icon">🔄</span>备份与还原</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
       <!-- 备份 -->
-      <div style="background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
-        <div style="font-size:15px;font-weight:700;color:var(--pink-600);margin-bottom:4px;">📤 数据备份</div>
+      <div style="background:linear-gradient(135deg,#d1faf0,#ffe4f0);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
+        <div style="font-size:15px;font-weight:700;color:#e6337e;margin-bottom:4px;">📤 数据备份</div>
         <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">导出全部数据为 JSON 文件</div>
         <button class="btn btn-primary btn-block" id="backupNowBtn" style="font-size:13px;">📦 立即备份</button>
       </div>
@@ -1852,12 +1861,12 @@ function showAddCustomSportModal(){
   document.getElementById('customSportMin').value = '20';
   document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(e=>{
     e.style.borderColor = e.dataset.e === '⭐' ? 'var(--pink-400)' : 'var(--pink-100)';
-    e.style.background = e.dataset.e === '⭐' ? 'var(--pink-50,#f0fdfb)' : '#fff';
+    e.style.background = e.dataset.e === '⭐' ? 'var(--pink-50,#f0fdfa)' : '#fff';
     e.onclick = ()=>{
       pickedCustomEmoji = e.dataset.e;
       document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(x=>{
         x.style.borderColor = x.dataset.e === pickedCustomEmoji ? 'var(--pink-400)' : 'var(--pink-100)';
-        x.style.background = x.dataset.e === pickedCustomEmoji ? 'var(--pink-50,#f0fdfb)' : '#fff';
+        x.style.background = x.dataset.e === pickedCustomEmoji ? 'var(--pink-50,#f0fdfa)' : '#fff';
       });
     };
   });
@@ -3053,7 +3062,7 @@ function showInstallBanner() {
   banner.innerHTML = `
     <div style="
       position:fixed;bottom:20px;left:16px;right:16px;z-index:999;
-      background:linear-gradient(135deg,#2dd4bf,#14b8a6);
+      background:linear-gradient(135deg,#34d8a8,#ff7ab8);
       border-radius:18px;padding:16px 18px;color:#fff;
       box-shadow:0 8px 30px rgba(20,184,166,0.4);
       display:flex;align-items:center;gap:12px;
@@ -3128,7 +3137,7 @@ window.addEventListener('load', () => {
       banner.innerHTML = `
         <div style="
           position:fixed;bottom:20px;left:16px;right:16px;z-index:999;
-          background:linear-gradient(135deg,#2dd4bf,#14b8a6);
+          background:linear-gradient(135deg,#34d8a8,#ff7ab8);
           border-radius:18px;padding:16px 18px;color:#fff;
           box-shadow:0 8px 30px rgba(20,184,166,0.4);
           display:flex;align-items:center;gap:12px;

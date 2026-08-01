@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mint-desk-v1';
+const CACHE_NAME = 'mint-rose-desk-v1';
 const ASSETS = [
   './',
   './index.html',

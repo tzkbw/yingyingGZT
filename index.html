@@ -16,14 +16,14 @@
 <style>
 :root{
   /* 粉色主基调（原 index）*/
-  --pink-50:#fff5fa;
-  --pink-100:#ffe4f0;
-  --pink-200:#ffc9e3;
-  --pink-300:#ffa6d2;
-  --pink-400:#ff7ab8;
-  --pink-500:#ff4ea1;
-  --pink-600:#e6337e;
-  --pink-700:#b51e5c;
+  --pink-50:#f0fdfb;
+  --pink-100:#ccfbf3;
+  --pink-200:#99f6e4;
+  --pink-300:#5eead4;
+  --pink-400:#2dd4bf;
+  --pink-500:#14b8a6;
+  --pink-600:#0d9488;
+  --pink-700:#0f766e;
   /* 奶茶暖棕辅助色（来自 stylist，融入莹莹工作台体系）*/
   --milk:#faf7f5;
   --milk-2:#f3ede8;
@@ -37,12 +37,12 @@
   --milk-blue:#7b9ab0;
   --milk-purple:#9b7ba8;
   /* 文字与通用 */
-  --text-main:#5a3a4a;
-  --text-soft:#8a6a7a;
-  --text-3:#a89b92;
+  --text-main:#1a4a47;
+  --text-soft:#5a807d;
+  --text-3:#8aa8a4;
   --card-bg:rgba(255,255,255,0.85);
-  --shadow:0 8px 24px rgba(255,118,180,0.18);
-  --shadow-soft:0 4px 14px rgba(255,118,180,0.12);
+  --shadow:0 8px 24px rgba(20,184,166,0.18);
+  --shadow-soft:0 4px 14px rgba(20,184,166,0.12);
   --shadow-milk:0 2px 12px rgba(44,36,32,0.06);
   --radius:18px;
   --radius-sm:12px;
@@ -53,7 +53,7 @@ html,body{height:100%;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI Emoji","Noto Color Emoji",sans-serif;
   color:var(--text-main);
-  background:linear-gradient(160deg,#ffe4f0 0%,#ffd6e7 35%,#ffc9e3 70%,#ffb8d8 100%);
+  background:linear-gradient(160deg,#ccfbf3 0%,#99f6e4 35%,#5eead4 70%,#2dd4bf 100%);
   min-height:100vh;
   overflow-x:hidden;
   position:relative;
@@ -63,7 +63,7 @@ body::before,body::after{
   content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0;
 }
 body::before{
-  width:300px;height:300px;background:radial-gradient(circle,rgba(255,201,227,0.6) 0%,transparent 70%);
+  width:300px;height:300px;background:radial-gradient(circle,rgba(153,246,228,0.6) 0%,transparent 70%);
   top:-100px;right:-80px;
 }
 body::after{
@@ -88,12 +88,12 @@ body::after{
   position:fixed;top:0;left:0;right:0;z-index:50;
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 16px 10px;
-  background:linear-gradient(180deg,rgba(255,228,240,0.95) 0%,rgba(255,228,240,0.6) 100%);
+  background:linear-gradient(180deg,rgba(204,251,243,0.95) 0%,rgba(204,251,243,0.6) 100%);
   backdrop-filter:blur(10px);
 }
 .menu-btn{
   width:42px;height:42px;border-radius:50%;
-  background:linear-gradient(135deg,#ff7ab8,#ff4ea1);
+  background:linear-gradient(135deg,#2dd4bf,#14b8a6);
   border:none;cursor:pointer;
   display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;
   box-shadow:var(--shadow);
@@ -112,18 +112,18 @@ body::after{
 
 /* ===== 抽屉菜单 ===== */
 .drawer-mask{
-  position:fixed;inset:0;background:rgba(90,58,74,0.3);
+  position:fixed;inset:0;background:rgba(26,74,71,0.3);
   backdrop-filter:blur(4px);z-index:100;opacity:0;pointer-events:none;
   transition:opacity 0.3s;
 }
 .drawer-mask.show{opacity:1;pointer-events:auto;}
 .drawer{
   position:fixed;top:0;left:0;bottom:0;width:78%;max-width:320px;z-index:101;
-  background:linear-gradient(160deg,#fff5fa 0%,#ffe4f0 100%);
+  background:linear-gradient(160deg,#f0fdfb 0%,#ccfbf3 100%);
   transform:translateX(-105%);transition:transform 0.35s cubic-bezier(.22,.61,.36,1);
   padding:60px 18px 24px;
   overflow-y:auto;
-  box-shadow:4px 0 30px rgba(255,118,180,0.25);
+  box-shadow:4px 0 30px rgba(45,212,191,0.25);
 }
 .drawer.show{transform:translateX(0);}
 .drawer-close{
@@ -138,9 +138,9 @@ body::after{
 .user-profile{
   display:flex;align-items:center;gap:14px;
   padding:16px 14px;margin-bottom:18px;border-radius:var(--radius);
-  background:linear-gradient(135deg,#fff 0%,#ffe4f0 100%);
+  background:linear-gradient(135deg,#fff 0%,#ccfbf3 100%);
   cursor:pointer;position:relative;overflow:hidden;
-  border:1.5px solid rgba(255,201,227,0.6);
+  border:1.5px solid rgba(153,246,228,0.6);
   box-shadow:var(--shadow-soft);
   transition:transform 0.2s;
 }
@@ -151,8 +151,8 @@ body::after{
 }
 .avatar-wrap{
   width:60px;height:60px;border-radius:50%;flex-shrink:0;position:relative;
-  background:linear-gradient(135deg,#ffd6e7,#ffc9e3);
-  box-shadow:0 4px 12px rgba(255,118,180,0.3);
+  background:linear-gradient(135deg,#99f6e4,#99f6e4);
+  box-shadow:0 4px 12px rgba(45,212,191,0.3);
   overflow:hidden;display:flex;align-items:center;justify-content:center;
 }
 .avatar-img{
@@ -176,13 +176,13 @@ body::after{
 }
 .nav-item:active{transform:scale(0.97);}
 .nav-item.active{
-  background:linear-gradient(135deg,#fff,#ffe4f0);
+  background:linear-gradient(135deg,#fff,#ccfbf3);
   border-color:var(--pink-300);box-shadow:var(--shadow-soft);
 }
 .nav-icon{
   width:44px;height:44px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:22px;
-  background:linear-gradient(135deg,#ffd6e7,#ffc9e3);
+  background:linear-gradient(135deg,#99f6e4,#99f6e4);
 }
 .nav-text .nav-name{font-size:16px;font-weight:600;color:var(--text-main);}
 .nav-text .nav-desc{font-size:12px;color:var(--text-soft);margin-top:2px;}
@@ -208,7 +208,7 @@ body::after{
 
 /* ===== 时钟卡片 ===== */
 .clock-card{
-  background:linear-gradient(135deg,#ff7ab8 0%,#ff4ea1 100%);
+  background:linear-gradient(135deg,#2dd4bf 0%,#14b8a6 100%);
   border-radius:var(--radius);padding:22px 20px;color:#fff;
   box-shadow:var(--shadow);position:relative;overflow:hidden;
 }
@@ -229,7 +229,7 @@ body::after{
 .card{
   background:var(--card-bg);border-radius:var(--radius);padding:16px;
   box-shadow:var(--shadow-soft);margin-top:14px;
-  border:1.5px solid rgba(255,201,227,0.5);
+  border:1.5px solid rgba(153,246,228,0.5);
 }
 .card-title{
   display:flex;align-items:center;gap:8px;
@@ -276,13 +276,13 @@ body::after{
 }
 .cal-cell.today::after{background:var(--pink-400);}
 .cal-cell.other-month{color:var(--text-3);opacity:0.4;}
-.cal-cell.today{font-weight:700;color:var(--pink-600);background:rgba(255,166,210,0.15);}
+.cal-cell.today{font-weight:700;color:var(--pink-600);background:rgba(94,234,212,0.15);}
 .cal-cell.period{
   background:linear-gradient(135deg,#ff7ab8,#ff4ea1);color:#fff;font-weight:600;
 }
 .cal-cell.period-start{border:2px solid var(--pink-600);}
 .cal-cell.predicted{
-  background:rgba(255,166,210,0.25);color:var(--pink-500);
+  background:rgba(255,166,210,0.25);color:#e6337e;
 }
 .cal-cell.sport{
   background:rgba(200,155,123,0.2);color:var(--milk-primary-d);font-weight:600;
@@ -306,7 +306,7 @@ body::after{
 .period-status{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px;border-radius:var(--radius-sm);
-  background:linear-gradient(135deg,#fff0f6,#ffe4f0);
+  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);
 }
 .period-status .label{font-size:12px;color:var(--text-soft);}
 .period-status .value{font-size:22px;font-weight:700;color:var(--pink-500);margin-top:4px;}
@@ -330,14 +330,14 @@ body::after{
 .report-card{background:#fff;border-radius:var(--radius-sm);padding:14px;border:1px solid var(--pink-100);}
 .report-card .stat-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--pink-100);}
 .report-card .stat-row:last-child{border-bottom:none;}
-.report-card .analysis{margin-top:10px;padding:10px;background:linear-gradient(135deg,#fff0f6,#fff5fa);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-main);}
+.report-card .analysis{margin-top:10px;padding:10px;background:linear-gradient(135deg,#f0fdfb,#f0fdfb);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-main);}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:11px 18px;border-radius:24px;border:none;cursor:pointer;
   font-size:14px;font-weight:600;transition:all 0.2s;
 }
 .btn:active{transform:scale(0.96);}
-.btn-primary{background:linear-gradient(135deg,#ff7ab8,#ff4ea1);color:#fff;box-shadow:var(--shadow-soft);}
+.btn-primary{background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#fff;box-shadow:var(--shadow-soft);}
 .btn-soft{background:#fff;color:var(--pink-600);border:1.5px solid var(--pink-200);}
 .btn-block{display:flex;width:100%;}
 .btn-sm{padding:8px 14px;font-size:12px;}
@@ -363,7 +363,7 @@ body::after{
 /* 通用删除按钮 */
 .del-btn{
   width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;
-  background:rgba(255,118,180,0.12);color:var(--pink-500);font-size:14px;
+  background:rgba(20,184,166,0.12);color:var(--pink-500);font-size:14px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
   transition:all 0.2s;
 }
@@ -373,7 +373,7 @@ body::after{
 }
 .del-btn-milk:active{background:var(--milk-primary);color:#fff;}
 .btn-danger{
-  background:#fff;color:#e6337e;border:1.5px solid var(--pink-200);
+  background:#fff;color:#0d9488;border:1.5px solid var(--pink-200);
 }
 .btn-danger:active{background:var(--pink-100);}
 
@@ -393,7 +393,7 @@ body::after{
 }
 .sport-chip:active{transform:scale(0.95);}
 .sport-chip.done{
-  background:linear-gradient(135deg,#ffd6e7,#ffc9e3);border-color:var(--pink-300);
+  background:linear-gradient(135deg,#99f6e4,#99f6e4);border-color:var(--pink-300);
 }
 .sport-chip .emoji{font-size:24px;}
 .sport-chip .name{font-size:11px;color:var(--text-main);}
@@ -403,7 +403,7 @@ body::after{
 }
 .sport-chip.done .check{display:block;}
 .sport-chip.selected{
-  background:linear-gradient(135deg,#fff5fa,#ffe4f0);border-color:var(--pink-400);
+  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-color:var(--pink-400);
   box-shadow:0 0 0 2px var(--pink-300);
 }
 .sport-chip.done .duration{
@@ -414,7 +414,7 @@ body::after{
 /* 运动计时器 */
 .timer-card{
   margin-top:12px;padding:18px;border-radius:var(--radius-sm);
-  background:linear-gradient(135deg,#fff0f6,#ffe4f0);
+  background:linear-gradient(135deg,#f0fdfb,#ccfbf3);
   border:1.5px solid var(--pink-200);text-align:center;
 }
 .timer-card .timer-label{font-size:12px;color:var(--text-soft);margin-bottom:6px;}
@@ -459,7 +459,7 @@ body::after{
 
 /* 经期运动提醒 */
 .period-sport-tip{
-  background:linear-gradient(135deg,#fff0f6,#fff5fa);border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,#f0fdfb,#f0fdfb);border-radius:var(--radius-sm);
   padding:12px;border:1.5px solid var(--pink-200);font-size:13px;line-height:1.7;
 }
 .period-sport-tip .tip-title{font-weight:700;color:var(--pink-600);margin-bottom:4px;}
@@ -594,7 +594,7 @@ body::after{
 .fav-info .actions{display:flex;gap:6px;margin-top:8px;}
 
 /* 弹窗 */
-.modal-mask{position:fixed;inset:0;background:rgba(90,58,74,0.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-mask{position:fixed;inset:0;background:rgba(26,74,71,0.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end;justify-content:center;}
 .modal-mask.show{display:flex;animation:fadeIn .25s;}
 .modal{
   width:100%;max-width:480px;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
@@ -608,7 +608,7 @@ body::after{
 
 /* Toast */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-  background:rgba(90,58,74,0.92);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;z-index:300;
+  background:rgba(26,74,71,0.92);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;z-index:300;
   opacity:0;transition:opacity .25s;pointer-events:none;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,0.2);}
 .toast.show{opacity:1;}
 
@@ -723,7 +723,7 @@ body::after{
         <div class="period-stat"><div class="num" id="nextPredict">—</div><div class="lbl">预计下次(天)</div></div>
         <div class="period-stat"><div class="num" id="ovulationDay">—</div><div class="lbl">排卵日</div></div>
       </div>
-      <div id="periodTips" style="font-size:12px;color:var(--text-soft);line-height:1.7;margin-top:10px;padding:8px 10px;background:rgba(255,201,227,0.15);border-radius:10px;"></div>
+      <div id="periodTips" style="font-size:12px;color:var(--text-soft);line-height:1.7;margin-top:10px;padding:8px 10px;background:rgba(153,246,228,0.15);border-radius:10px;"></div>
       <div class="period-actions">
         <button class="btn btn-primary btn-block" id="periodStartBtn">🩸 记录开始</button>
         <button class="btn btn-soft btn-block" id="periodEndBtn" style="display:none;">结束经期</button>
@@ -764,11 +764,11 @@ body::after{
       <div class="card-title"><span class="icon">📅</span>经期日历</div>
       <div id="periodCalendar"></div>
       <div class="cal-legend">
-        <div class="item"><div class="swatch" style="background:linear-gradient(135deg,#ff7ab8,#ff4ea1);"></div>经期</div>
-        <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.25);"></div>预测期</div>
+        <div class="item"><div class="swatch" style="background:linear-gradient(135deg,#2dd4bf,#14b8a6);"></div>经期</div>
+        <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.25);"></div>预测期</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.3);border:2px solid #ffb347;"></div>排卵日</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.1);"></div>排卵期</div>
-        <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.15);border:1px solid var(--pink-300);"></div>今天</div>
+        <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
     </div>
 
@@ -830,10 +830,10 @@ body::after{
       <div id="sportCalendar"></div>
       <div class="cal-legend">
         <div class="item"><div class="swatch" style="background:rgba(200,155,123,0.2);"></div>有运动</div>
-        <div class="item"><div class="swatch" style="background:rgba(255,166,210,0.15);border:1px solid var(--pink-300);"></div>今天</div>
+        <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
       <button class="btn btn-soft btn-block" id="toggleManualSportBtn" style="margin-top:10px;">✍️ 手动补录打卡</button>
-      <div id="manualSportPanel" style="display:none;margin-top:10px;padding:12px;background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);">
+      <div id="manualSportPanel" style="display:none;margin-top:10px;padding:12px;background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-radius:var(--radius-sm);">
         <div style="font-size:13px;font-weight:600;color:var(--pink-600);margin-bottom:8px;">补录运动打卡记录</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
           <input type="date" id="manualSportDate" style="flex:1;min-width:130px;padding:8px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:13px;">
@@ -938,7 +938,7 @@ body::after{
     <div class="card-title"><span class="icon">🔄</span>备份与还原</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
       <!-- 备份 -->
-      <div style="background:linear-gradient(135deg,#fff0f6,#ffe4f0);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
+      <div style="background:linear-gradient(135deg,#f0fdfb,#ccfbf3);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
         <div style="font-size:15px;font-weight:700;color:var(--pink-600);margin-bottom:4px;">📤 数据备份</div>
         <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">导出全部数据为 JSON 文件</div>
         <button class="btn btn-primary btn-block" id="backupNowBtn" style="font-size:13px;">📦 立即备份</button>
@@ -946,7 +946,7 @@ body::after{
       <!-- 还原 -->
       <div style="background:linear-gradient(135deg,#f0f7ff,#e4f0ff);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;">
         <div style="font-size:15px;font-weight:700;color:#4a90d9;margin-bottom:4px;">📥 数据还原</div>
-        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">选择备份文件恢复数据<br><b style="color:#e6337e;">⚠️ 会覆盖当前数据</b></div>
+        <div style="font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:10px;flex:1;">选择备份文件恢复数据<br><b style="color:#0d9488;">⚠️ 会覆盖当前数据</b></div>
         <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
         <button class="btn btn-soft btn-block" id="restorePickBtn" style="font-size:13px;">📂 选择文件</button>
       </div>
@@ -986,7 +986,7 @@ body::after{
           <option value="download">每次下载到设备</option>
         </select>
       </div>
-      <p style="font-size:11px;color:var(--text-soft);background:rgba(255,200,221,0.2);padding:8px 10px;border-radius:8px;margin-top:6px;">
+      <p style="font-size:11px;color:var(--text-soft);background:rgba(94,234,212,0.2);padding:8px 10px;border-radius:8px;margin-top:6px;">
         💡 说明：「本机内存」备份保存在浏览器本地，换设备或清缓存会丢失；「每次下载」会在每次自动备份时下载一个 JSON 文件到手机下载目录（需保持应用在前台）。
       </p>
       <div style="margin-top:10px;font-size:12px;color:var(--text-soft);" id="autoBackupInfo"></div>
@@ -1852,12 +1852,12 @@ function showAddCustomSportModal(){
   document.getElementById('customSportMin').value = '20';
   document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(e=>{
     e.style.borderColor = e.dataset.e === '⭐' ? 'var(--pink-400)' : 'var(--pink-100)';
-    e.style.background = e.dataset.e === '⭐' ? 'var(--pink-50,#fff0f6)' : '#fff';
+    e.style.background = e.dataset.e === '⭐' ? 'var(--pink-50,#f0fdfb)' : '#fff';
     e.onclick = ()=>{
       pickedCustomEmoji = e.dataset.e;
       document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(x=>{
         x.style.borderColor = x.dataset.e === pickedCustomEmoji ? 'var(--pink-400)' : 'var(--pink-100)';
-        x.style.background = x.dataset.e === pickedCustomEmoji ? 'var(--pink-50,#fff0f6)' : '#fff';
+        x.style.background = x.dataset.e === pickedCustomEmoji ? 'var(--pink-50,#f0fdfb)' : '#fff';
       });
     };
   });
@@ -2053,7 +2053,7 @@ function renderPeriodSportTip(){
   if(!tip){ el.innerHTML = '<div class="period-sport-tip"><div class="tip-title">暂无经期数据</div><div style="font-size:12px;color:var(--text-soft);">记录经期后可获取个性化运动建议</div></div>'; return; }
   const avoidNames = tip.avoid.map(id=>{const s=getSportInfo(id);return s?s.name:id;}).join('、');
   const recNames = tip.recommend.map(id=>{const s=getSportInfo(id);return s?s.name:id;}).join('、');
-  el.innerHTML = `<div class="period-sport-tip"><div class="tip-title">${tip.icon} ${tip.title}</div><div>${tip.text}</div><div class="avoid-list">✅ 推荐：${recNames}</div>${avoidNames?`<div class="avoid-list" style="color:#e6337e;">⚠️ 建议避开：${avoidNames}</div>`:''}</div>`;
+  el.innerHTML = `<div class="period-sport-tip"><div class="tip-title">${tip.icon} ${tip.title}</div><div>${tip.text}</div><div class="avoid-list">✅ 推荐：${recNames}</div>${avoidNames?`<div class="avoid-list" style="color:#0d9488;">⚠️ 建议避开：${avoidNames}</div>`:''}</div>`;
 }
 function renderSport(){
   renderPeriodSportTip();
@@ -2096,7 +2096,7 @@ function renderSportGrid(){
       const totalMin = todayRecords.filter(r=>r.id===s.id).reduce((sum,r)=>sum+r.duration,0);
       durText = `<div class="duration">${totalMin}分钟</div>`;
     }
-    const delBtn = currentCategory === '其他' ? `<span class="custom-del" data-id="${s.id}" style="position:absolute;top:4px;left:6px;font-size:14px;color:#e6337e;display:none;z-index:2;">✕</span>` : '';
+    const delBtn = currentCategory === '其他' ? `<span class="custom-del" data-id="${s.id}" style="position:absolute;top:4px;left:6px;font-size:14px;color:#0d9488;display:none;z-index:2;">✕</span>` : '';
     return `<div class="sport-chip ${isDone?'done':''} ${isSelected?'selected':''} ${isAvoid?'avoid':''}" data-id="${s.id}">${delBtn}<span class="check">✓</span><div class="emoji">${s.emoji}</div><div class="name">${s.name}</div>${durText}</div>`;
   }).join('');
   // "其他"分类：添加自定义运动按钮 + 删除模式提示
@@ -2163,7 +2163,7 @@ function renderCheckIn(){
     const s = getSportInfo(selectedSportId);
     const tip = getPeriodSportTip();
     const isAvoid = tip && tip.avoid.includes(s.id);
-    area.innerHTML = `<div class="timer-card"><div class="timer-label">已选择运动项目 ${isAvoid?'<span style="color:#e6337e;font-size:11px;">⚠️ 经期建议避开</span>':''}</div><div class="timer-display" id="timerDisplay">00:00</div><div class="timer-sport">${s.emoji} ${s.name}（建议 ${s.min} 分钟，约 ${calcCalories(s.id,s.min)} kcal）</div><div class="timer-actions"><button class="btn btn-primary" id="startTimerBtn">▶ 开始运动</button><button class="btn btn-soft" id="quickLogBtn">⚡ 快速打卡</button></div><div style="margin-top:12px;"><label style="font-size:12px;color:var(--text-soft);">训练感受</label><div class="feeling-selector" id="feelingSelector">${['轻松','适中','累','很累'].map(f=>`<div class="feeling-opt ${f===selectedFeeling?'selected':''}" data-f="${f}">${f}</div>`).join('')}</div></div></div>`;
+    area.innerHTML = `<div class="timer-card"><div class="timer-label">已选择运动项目 ${isAvoid?'<span style="color:#0d9488;font-size:11px;">⚠️ 经期建议避开</span>':''}</div><div class="timer-display" id="timerDisplay">00:00</div><div class="timer-sport">${s.emoji} ${s.name}（建议 ${s.min} 分钟，约 ${calcCalories(s.id,s.min)} kcal）</div><div class="timer-actions"><button class="btn btn-primary" id="startTimerBtn">▶ 开始运动</button><button class="btn btn-soft" id="quickLogBtn">⚡ 快速打卡</button></div><div style="margin-top:12px;"><label style="font-size:12px;color:var(--text-soft);">训练感受</label><div class="feeling-selector" id="feelingSelector">${['轻松','适中','累','很累'].map(f=>`<div class="feeling-opt ${f===selectedFeeling?'selected':''}" data-f="${f}">${f}</div>`).join('')}</div></div></div>`;
     document.getElementById('startTimerBtn').onclick = startTimer;
     document.getElementById('quickLogBtn').onclick = quickLog;
     document.querySelectorAll('#feelingSelector .feeling-opt').forEach(o=>{
@@ -2460,18 +2460,18 @@ function handleRestoreFile(file){
     try{
       const backup = JSON.parse(e.target.result);
       if(!backup.data || !backup.createTime){
-        $('restorePreview').innerHTML = '<div style="color:#e6337e;">❌ 文件格式不正确，不是有效的备份文件</div>';
+        $('restorePreview').innerHTML = '<div style="color:#0d9488;">❌ 文件格式不正确，不是有效的备份文件</div>';
         return;
       }
       const dataKeys = Object.keys(backup.data);
       let totalSize = 0;
       dataKeys.forEach(k=>{ totalSize += (JSON.stringify(backup.data[k])||'').length; });
       $('restorePreview').innerHTML = `
-        <div style="background:rgba(255,200,221,0.15);padding:10px;border-radius:8px;font-size:12px;">
+        <div style="background:rgba(94,234,212,0.15);padding:10px;border-radius:8px;font-size:12px;">
           <div>✅ 识别到备份文件</div>
           <div>📅 备份时间：${fmtDateTime(backup.createTime)}</div>
           <div>📊 包含数据：${dataKeys.length} 项，约 ${formatBytes(totalSize)}</div>
-          <div style="margin-top:8px;color:#e6337e;font-weight:600;">⚠️ 还原将覆盖当前全部数据，确定继续吗？</div>
+          <div style="margin-top:8px;color:#0d9488;font-weight:600;">⚠️ 还原将覆盖当前全部数据，确定继续吗？</div>
           <button class="btn btn-primary btn-block" id="confirmRestoreBtn" style="margin-top:8px;">确认还原</button>
         </div>`;
       $('confirmRestoreBtn').onclick = ()=>{
@@ -2481,7 +2481,7 @@ function handleRestoreFile(file){
         setTimeout(()=>{ location.reload(); }, 1500);
       };
     }catch(err){
-      $('restorePreview').innerHTML = '<div style="color:#e6337e;">❌ 无法解析文件：'+err.message+'</div>';
+      $('restorePreview').innerHTML = '<div style="color:#0d9488;">❌ 无法解析文件：'+err.message+'</div>';
     }
   };
   reader.readAsText(file);
@@ -3053,9 +3053,9 @@ function showInstallBanner() {
   banner.innerHTML = `
     <div style="
       position:fixed;bottom:20px;left:16px;right:16px;z-index:999;
-      background:linear-gradient(135deg,#ff7ab8,#ff4ea1);
+      background:linear-gradient(135deg,#2dd4bf,#14b8a6);
       border-radius:18px;padding:16px 18px;color:#fff;
-      box-shadow:0 8px 30px rgba(255,78,161,0.4);
+      box-shadow:0 8px 30px rgba(20,184,166,0.4);
       display:flex;align-items:center;gap:12px;
       animation:slideUp 0.4s cubic-bezier(.22,.61,.36,1);
     ">
@@ -3128,9 +3128,9 @@ window.addEventListener('load', () => {
       banner.innerHTML = `
         <div style="
           position:fixed;bottom:20px;left:16px;right:16px;z-index:999;
-          background:linear-gradient(135deg,#ff7ab8,#ff4ea1);
+          background:linear-gradient(135deg,#2dd4bf,#14b8a6);
           border-radius:18px;padding:16px 18px;color:#fff;
-          box-shadow:0 8px 30px rgba(255,78,161,0.4);
+          box-shadow:0 8px 30px rgba(20,184,166,0.4);
           display:flex;align-items:center;gap:12px;
           animation:slideUp 0.4s cubic-bezier(.22,.61,.36,1);
         ">

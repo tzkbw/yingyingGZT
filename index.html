@@ -1021,6 +1021,38 @@ body::after{
   </div>
 </div>
 
+<!-- 添加自定义运动弹窗 -->
+<div class="modal-mask" id="customSportModal">
+  <div class="modal">
+    <div class="modal-close" onclick="closeModal('customSportModal')">✕</div>
+    <div class="modal-title">添加自定义运动</div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px;color:var(--text-soft);">运动名称</label>
+      <input type="text" id="customSportName" placeholder="如：舞蹈、游泳、滑板..." maxlength="10" style="width:100%;padding:10px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:14px;margin-top:6px;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px;color:var(--text-soft);">选择图标</label>
+      <div id="customSportEmojis" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+        <div class="emoji-pick" data-e="⭐" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">⭐</div>
+        <div class="emoji-pick" data-e="🎯" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🎯</div>
+        <div class="emoji-pick" data-e="💃" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">💃</div>
+        <div class="emoji-pick" data-e="🏊‍♀️" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🏊‍♀️</div>
+        <div class="emoji-pick" data-e="🚗" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🚗</div>
+        <div class="emoji-pick" data-e="🧗‍♀️" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🧗‍♀️</div>
+        <div class="emoji-pick" data-e="🏂" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🏂</div>
+        <div class="emoji-pick" data-e="🤸‍♀️" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🤸‍♀️</div>
+        <div class="emoji-pick" data-e="🎗️" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">🎗️</div>
+        <div class="emoji-pick" data-e="❤️" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:10px;background:#fff;border:1.5px solid var(--pink-100);cursor:pointer;">❤️</div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;color:var(--text-soft);">建议时长（分钟）</label>
+      <input type="number" id="customSportMin" value="20" min="5" max="180" style="width:100%;padding:10px;border:1.5px solid var(--pink-100);border-radius:10px;font-size:14px;margin-top:6px;box-sizing:border-box;">
+    </div>
+    <button class="btn btn-primary btn-block" id="confirmAddCustomSportBtn">✅ 确认添加</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1742,7 +1774,6 @@ function initManualSportPanel(){
   if(dateInput && !dateInput.value) dateInput.value = `${y}-${m}-${d}`;
   const sel = document.getElementById('manualSportSelect');
   if(sel && !sel.options.length){
-    let first = true;
     Object.entries(SPORT_DATA).forEach(([cat, items])=>{
       const og = document.createElement('optgroup');
       og.label = cat;
@@ -1754,6 +1785,19 @@ function initManualSportPanel(){
       });
       sel.appendChild(og);
     });
+    // 自定义运动
+    const customList = getCustomSports();
+    if(customList.length){
+      const og = document.createElement('optgroup');
+      og.label = '其他';
+      customList.forEach(s=>{
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.emoji} ${s.name}（建议${s.min}分钟·${s.calPerMin}kcal/分）`;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    }
   }
 }
 function toggleManualSportPanel(){
@@ -1798,6 +1842,51 @@ function addManualSport(){
   renderSportSummary();
   renderTodayDetail();
   renderHome();
+}
+
+// ========== 自定义运动弹窗 ==========
+let pickedCustomEmoji = '⭐';
+function showAddCustomSportModal(){
+  pickedCustomEmoji = '⭐';
+  document.getElementById('customSportName').value = '';
+  document.getElementById('customSportMin').value = '20';
+  document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(e=>{
+    e.style.borderColor = e.dataset.e === '⭐' ? 'var(--pink-400)' : 'var(--pink-100)';
+    e.style.background = e.dataset.e === '⭐' ? 'var(--pink-50,#fff0f6)' : '#fff';
+    e.onclick = ()=>{
+      pickedCustomEmoji = e.dataset.e;
+      document.querySelectorAll('#customSportEmojis .emoji-pick').forEach(x=>{
+        x.style.borderColor = x.dataset.e === pickedCustomEmoji ? 'var(--pink-400)' : 'var(--pink-100)';
+        x.style.background = x.dataset.e === pickedCustomEmoji ? 'var(--pink-50,#fff0f6)' : '#fff';
+      });
+    };
+  });
+  openModal('customSportModal');
+}
+function confirmAddCustomSport(){
+  const name = document.getElementById('customSportName').value.trim();
+  const min = document.getElementById('customSportMin').value;
+  if(!name){ toast('请输入运动名称'); return; }
+  if(name.length > 10){ toast('名称最多10个字'); return; }
+  const item = addCustomSport(name, pickedCustomEmoji, min);
+  closeModal('customSportModal');
+  toast(`${item.emoji} ${item.name} 已添加`);
+  // 自动切到"其他"分类并选中
+  currentCategory = '其他';
+  selectedSportId = item.id;
+  renderSportCategoryTabs();
+  renderSportGrid();
+  renderCheckIn();
+}
+function delCustomSportPrompt(id){
+  const s = getSportInfo(id);
+  if(!s) return;
+  if(!confirm(`确定删除「${s.emoji} ${s.name}」吗？\n（已记录的运动数据不会丢失）`)) return;
+  delCustomSport(id);
+  if(selectedSportId === id) selectedSportId = null;
+  toast('已删除自定义运动');
+  renderSportGrid();
+  renderCheckIn();
 }
 
 function toggleSymptom(s){
@@ -1909,6 +1998,26 @@ const SPORT_DATA = {
     {id:'football', emoji:'⚽', name:'足球', min:30, calPerMin:7},
   ]
 };
+
+// 自定义运动管理（持久化到 localStorage）
+function getCustomSports(){
+  return DB.get('customSports', []);
+}
+function saveCustomSports(list){
+  DB.set('customSports', list);
+}
+function addCustomSport(name, emoji, min){
+  const list = getCustomSports();
+  const id = 'custom_' + Date.now();
+  const item = {id, emoji: emoji||'⭐', name: name.trim(), min: parseInt(min)||20, calPerMin: 5};
+  list.push(item);
+  saveCustomSports(list);
+  return item;
+}
+function delCustomSport(id){
+  const list = getCustomSports().filter(s=>s.id !== id);
+  saveCustomSports(list);
+}
 let currentCategory = '力量抗阻';
 let selectedSportId = null;
 let timerRunning = false;
@@ -1957,7 +2066,8 @@ function renderSport(){
 }
 function renderSportCategoryTabs(){
   const c = document.getElementById('sportCategory');
-  c.innerHTML = Object.keys(SPORT_DATA).map(cat=>
+  const cats = [...Object.keys(SPORT_DATA), '其他'];
+  c.innerHTML = cats.map(cat=>
     `<div class="sport-tab ${cat===currentCategory?'active':''}" data-cat="${cat}">${cat}</div>`
   ).join('');
   c.querySelectorAll('.sport-tab').forEach(t=>{
@@ -1969,7 +2079,14 @@ function renderSportGrid(){
   const log = DB.get('sportLog',{});
   const todayRecords = getTodayRecords(log);
   const tip = getPeriodSportTip();
-  g.innerHTML = SPORT_DATA[currentCategory].map(s=>{
+  // 获取当前分类的运动列表（"其他"分类用自定义运动）
+  let sports;
+  if(currentCategory === '其他'){
+    sports = getCustomSports();
+  } else {
+    sports = SPORT_DATA[currentCategory] || [];
+  }
+  let html = sports.map(s=>{
     const doneCount = todayRecords.filter(r=>r.id===s.id).length;
     const isDone = doneCount > 0;
     const isSelected = selectedSportId === s.id;
@@ -1979,9 +2096,42 @@ function renderSportGrid(){
       const totalMin = todayRecords.filter(r=>r.id===s.id).reduce((sum,r)=>sum+r.duration,0);
       durText = `<div class="duration">${totalMin}分钟</div>`;
     }
-    return `<div class="sport-chip ${isDone?'done':''} ${isSelected?'selected':''} ${isAvoid?'avoid':''}" data-id="${s.id}"><span class="check">✓</span><div class="emoji">${s.emoji}</div><div class="name">${s.name}</div>${durText}</div>`;
+    const delBtn = currentCategory === '其他' ? `<span class="custom-del" data-id="${s.id}" style="position:absolute;top:4px;left:6px;font-size:14px;color:#e6337e;display:none;z-index:2;">✕</span>` : '';
+    return `<div class="sport-chip ${isDone?'done':''} ${isSelected?'selected':''} ${isAvoid?'avoid':''}" data-id="${s.id}">${delBtn}<span class="check">✓</span><div class="emoji">${s.emoji}</div><div class="name">${s.name}</div>${durText}</div>`;
   }).join('');
-  g.querySelectorAll('.sport-chip').forEach(c=>{ c.onclick = ()=>selectSport(c.dataset.id); });
+  // "其他"分类：添加自定义运动按钮 + 删除模式提示
+  if(currentCategory === '其他'){
+    html += `<div class="sport-chip add-custom" id="addCustomSportBtn" style="border-style:dashed;border-color:var(--pink-300);color:var(--pink-500);"><div class="emoji" style="font-size:28px;">➕</div><div class="name">添加自定义运动</div></div>`;
+    if(sports.length > 0){
+      html += `<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text-soft);margin-top:2px;">长按运动卡片可删除自定义项目</div>`;
+    } else {
+      html += `<div style="grid-column:1/-1;text-align:center;font-size:12px;color:var(--text-soft);margin-top:8px;">还没有自定义运动，点击上方按钮添加吧～</div>`;
+    }
+  }
+  g.innerHTML = html;
+  g.querySelectorAll('.sport-chip[data-id]').forEach(c=>{
+    c.onclick = (e)=>{
+      // 如果点击的是删除按钮
+      if(e.target.classList.contains('custom-del')){ e.stopPropagation(); delCustomSportPrompt(e.target.dataset.id); return; }
+      selectSport(c.dataset.id);
+    };
+    // 长按删除（仅自定义分类）
+    if(currentCategory === '其他'){
+      let pressTimer;
+      c.addEventListener('touchstart', ()=>{
+        pressTimer = setTimeout(()=>{
+          const delBtn = c.querySelector('.custom-del');
+          if(delBtn){ delBtn.style.display = 'block'; }
+          c.style.opacity = '0.7';
+          setTimeout(()=>{ if(delBtn) delBtn.style.display='none'; c.style.opacity='1'; }, 3000);
+        }, 600);
+      });
+      c.addEventListener('touchend', ()=> clearTimeout(pressTimer));
+      c.addEventListener('touchmove', ()=> clearTimeout(pressTimer));
+    }
+  });
+  const addBtn = document.getElementById('addCustomSportBtn');
+  if(addBtn) addBtn.onclick = showAddCustomSportModal;
 }
 function getTodayRecords(log, date){
   const key = (date||new Date()).toDateString();
@@ -1989,7 +2139,13 @@ function getTodayRecords(log, date){
   return raw.map(normalizeSportRecord);
 }
 function getSportDefaultMin(id){ const s = getSportInfo(id); return s ? s.min : 20; }
-function getSportInfo(id){ return Object.values(SPORT_DATA).flat().find(x=>x.id===id); }
+function getSportInfo(id){
+  // 先查内置运动
+  const builtin = Object.values(SPORT_DATA).flat().find(x=>x.id===id);
+  if(builtin) return builtin;
+  // 再查自定义运动
+  return getCustomSports().find(x=>x.id===id);
+}
 function selectSport(id){
   selectedSportId = (selectedSportId === id) ? null : id;
   selectedFeeling = '适中';
@@ -2810,6 +2966,7 @@ document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
 document.getElementById('toggleManualSportBtn').onclick = toggleManualSportPanel;
 document.getElementById('addManualSportBtn').onclick = addManualSport;
 document.getElementById('clearAllSportBtn').onclick = clearAllSport;
+document.getElementById('confirmAddCustomSportBtn').onclick = confirmAddCustomSport;
 
 // 数据管理事件绑定
 document.getElementById('backupNowBtn').onclick = ()=>backupNow(true);

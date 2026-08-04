@@ -450,6 +450,18 @@ body::after{
 .today-detail-item .td-time{font-size:11px;color:var(--text-soft);}
 .today-detail-item .del-btn{width:24px;height:24px;font-size:12px;}
 
+/* 分页器 */
+.pager{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.pager-btn{
+  min-width:32px;height:32px;border-radius:8px;border:1.5px solid var(--pink-100);
+  background:#fff;color:var(--text-soft);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0 8px;transition:all 0.2s;
+}
+.pager-btn:active{transform:scale(0.92);}
+.pager-btn.active{background:linear-gradient(135deg,#34d8a8,#ff7ab8);color:#fff;border-color:transparent;font-weight:600;}
+.pager-btn:disabled{opacity:0.35;cursor:not-allowed;}
+.pager-info{font-size:12px;color:var(--text-soft);margin:0 4px;}
+
 /* 训练感受选择器 */
 .feeling-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .feeling-opt{
@@ -825,11 +837,11 @@ body::after{
       </div>
     </div>
 
-    <!-- 今日打卡明细 -->
+    <!-- 打卡明细 -->
     <div class="card">
-      <div class="card-title"><span class="icon">📋</span>今日打卡明细</div>
+      <div class="card-title"><span class="icon">📋</span>打卡明细</div>
       <div class="today-detail" id="todayDetail">
-        <div class="empty">今天还没有打卡记录</div>
+        <div class="empty">还没有打卡记录</div>
       </div>
       <button class="btn btn-danger btn-block" id="clearTodaySportBtn" style="margin-top:8px;">🗑 清空今日打卡</button>
     </div>
@@ -1440,6 +1452,13 @@ function clearAllPeriod(){
   renderHome();
 }
 
+// 生理周期历史记录分页状态
+let periodHistoryPage = 1;
+function periodHistoryGoPage(p){
+  periodHistoryPage = p;
+  renderPeriod();
+}
+
 function renderPeriod(){
   const period = DB.get('period', {current:null, history:[]});
   const settings = getPeriodSettings();
@@ -1508,8 +1527,16 @@ function renderPeriod(){
   if(!period.history.length){
     hist.innerHTML = '<div class="empty">还没有历史记录，开始记录吧 🌸</div>';
   } else {
-    hist.innerHTML = period.history.slice().reverse().map((h,idx)=>{
-      const realIdx = period.history.length - 1 - idx;
+    const allHist = period.history.slice().reverse();
+    const PER_PAGE = 5;
+    const totalPages = Math.ceil(allHist.length / PER_PAGE);
+    if(periodHistoryPage > totalPages) periodHistoryPage = totalPages;
+    if(periodHistoryPage < 1) periodHistoryPage = 1;
+    const start = (periodHistoryPage - 1) * PER_PAGE;
+    const pageHist = allHist.slice(start, start + PER_PAGE);
+
+    let histHtml = pageHist.map((h,idx)=>{
+      const realIdx = period.history.length - 1 - (start + idx);
       const d = new Date(h.start);
       const dStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
       const len = h.periodLen || (h.end? Math.floor((h.end-h.start)/86400000)+1 : '进行中');
@@ -1517,6 +1544,21 @@ function renderPeriod(){
       const note = h.symptoms? h.symptoms.join('、') : '';
       return `<div class="history-item"><div style="flex:1;"><div class="date">${dStr} · ${len}天 · 周期${cLen}天</div><div class="note">${note||'无备注'}</div></div><div style="display:flex;align-items:center;gap:6px;"><button class="del-btn" onclick="editPeriodRecord(${realIdx})" title="编辑" style="background:#fff;border:1px solid var(--pink-200);color:var(--pink-500);width:24px;height:24px;border-radius:50%;cursor:pointer;">✎</button><button class="del-btn" onclick="delPeriodRecord(${realIdx})" title="删除">✕</button></div></div>`;
     }).join('');
+
+    // 分页导航
+    if(totalPages > 1){
+      histHtml += '<div class="pager">';
+      histHtml += `<button class="pager-btn" onclick="periodHistoryGoPage(${periodHistoryPage-1})" ${periodHistoryPage<=1?'disabled':''}>‹</button>`;
+      for(let p=1; p<=totalPages; p++){
+        histHtml += `<button class="pager-btn ${p===periodHistoryPage?'active':''}" onclick="periodHistoryGoPage(${p})">${p}</button>`;
+      }
+      histHtml += `<button class="pager-btn" onclick="periodHistoryGoPage(${periodHistoryPage+1})" ${periodHistoryPage>=totalPages?'disabled':''}>›</button>`;
+      histHtml += `<span class="pager-info">共 ${allHist.length} 条</span>`;
+      histHtml += '</div>';
+    } else {
+      histHtml += `<div class="pager-info" style="text-align:center;margin-top:8px;">共 ${allHist.length} 条</div>`;
+    }
+    hist.innerHTML = histHtml;
   }
 
   const today = new Date().toDateString();
@@ -2223,24 +2265,89 @@ function saveSportRecord(record){
   log[today].push(record);
   DB.set('sportLog', log);
 }
+// 打卡明细分页状态
+let sportDetailPage = 1;
+const SPORT_DETAIL_PER_PAGE = 5;
+
 function renderTodayDetail(){
   const log = DB.get('sportLog',{});
-  const records = getTodayRecords(log);
   const el = document.getElementById('todayDetail');
-  if(!records.length){ el.innerHTML = '<div class="empty">今天还没有打卡记录</div>'; return; }
-  el.innerHTML = records.slice().reverse().map((r,i)=>{
+  // 收集所有时间的打卡记录，按时间倒序
+  let allRecords = [];
+  Object.entries(log).forEach(([dateKey, records])=>{
+    if(!records || !records.length) return;
+    records.forEach((r, idx)=>{
+      const nr = normalizeSportRecord(r);
+      allRecords.push({...nr, _dateKey: dateKey, _idx: idx});
+    });
+  });
+  // 按 endTime 倒序（无 endTime 的按 dateKey 排序）
+  allRecords.sort((a,b)=>{
+    const ta = a.endTime || 0;
+    const tb = b.endTime || 0;
+    if(ta !== tb) return tb - ta;
+    return b._dateKey.localeCompare(a._dateKey);
+  });
+
+  if(!allRecords.length){
+    el.innerHTML = '<div class="empty">还没有打卡记录</div>';
+    return;
+  }
+
+  const totalPages = Math.ceil(allRecords.length / SPORT_DETAIL_PER_PAGE);
+  if(sportDetailPage > totalPages) sportDetailPage = totalPages;
+  if(sportDetailPage < 1) sportDetailPage = 1;
+  const start = (sportDetailPage - 1) * SPORT_DETAIL_PER_PAGE;
+  const pageRecords = allRecords.slice(start, start + SPORT_DETAIL_PER_PAGE);
+
+  let html = pageRecords.map(r=>{
     const s = getSportInfo(r.id);
-    const realIdx = records.length - 1 - i;
     let timeStr = '';
-    if(r.endTime){ const d = new Date(r.endTime); timeStr = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
-    return `<div class="today-detail-item"><div class="td-emoji">${s?s.emoji:'🏃'}</div><div style="flex:1;"><div class="td-name">${s?s.name:'未知'} <span style="font-size:10px;color:var(--text-soft);">${r.feeling||''}</span></div>${timeStr?`<div class="td-time">完成于 ${timeStr} · ${r.calories||0}kcal</div>`:`<div class="td-time">${r.calories||0}kcal</div>`}</div><div class="td-duration">${r.duration}分钟</div><button class="del-btn" onclick="delTodayRecord(${realIdx})" title="删除">✕</button></div>`;
+    let dateLabel = '';
+    if(r.endTime){
+      const d = new Date(r.endTime);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      dateLabel = isToday ? '今天' : `${d.getMonth()+1}/${d.getDate()}`;
+      timeStr = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    } else {
+      // 用 dateKey 解析日期
+      const d = new Date(r._dateKey);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      dateLabel = isToday ? '今天' : `${d.getMonth()+1}/${d.getDate()}`;
+    }
+    return `<div class="today-detail-item"><div class="td-emoji">${s?s.emoji:'🏃'}</div><div style="flex:1;"><div class="td-name">${s?s.name:'未知'} <span style="font-size:10px;color:var(--text-soft);">${r.feeling||''}</span></div>${timeStr?`<div class="td-time">${dateLabel} ${timeStr} · ${r.calories||0}kcal</div>`:`<div class="td-time">${dateLabel} · ${r.calories||0}kcal</div>`}</div><div class="td-duration">${r.duration}分钟</div><button class="del-btn" onclick="delSportRecordByKey('${r._dateKey}',${r._idx})" title="删除">✕</button></div>`;
   }).join('');
+
+  // 分页导航
+  if(totalPages > 1){
+    html += '<div class="pager">';
+    html += `<button class="pager-btn" onclick="sportDetailGoPage(${sportDetailPage-1})" ${sportDetailPage<=1?'disabled':''}>‹</button>`;
+    for(let p=1; p<=totalPages; p++){
+      html += `<button class="pager-btn ${p===sportDetailPage?'active':''}" onclick="sportDetailGoPage(${p})">${p}</button>`;
+    }
+    html += `<button class="pager-btn" onclick="sportDetailGoPage(${sportDetailPage+1})" ${sportDetailPage>=totalPages?'disabled':''}>›</button>`;
+    html += `<span class="pager-info">共 ${allRecords.length} 条</span>`;
+    html += '</div>';
+  } else {
+    html += `<div class="pager-info" style="text-align:center;margin-top:8px;">共 ${allRecords.length} 条</div>`;
+  }
+
+  el.innerHTML = html;
 }
-function delTodayRecord(idx){
+function sportDetailGoPage(p){
+  sportDetailPage = p;
+  renderTodayDetail();
+}
+function delSportRecordByKey(dateKey, idx){
   if(!confirm('确定删除这条打卡记录吗？')) return;
-  const today = new Date().toDateString();
   const log = DB.get('sportLog',{});
-  if(log[today]){ log[today].splice(idx, 1); if(log[today].length === 0) delete log[today]; DB.set('sportLog', log); }
+  if(log[dateKey]){
+    log[dateKey].splice(idx, 1);
+    if(log[dateKey].length === 0) delete log[dateKey];
+    DB.set('sportLog', log);
+  }
   toast('记录已删除');
   renderSportGrid(); renderTodayDetail(); renderHome();
 }

@@ -305,6 +305,15 @@ body::after{
 .cal-cell.ovulation-period{
   background:rgba(255,179,71,0.1);color:#d97706;
 }
+.cal-cell.love{
+  position:relative;
+}
+.cal-cell.love .love-mark{
+  position:absolute;top:2px;right:3px;font-size:10px;line-height:1;
+}
+.cal-cell.period.love{
+  background:linear-gradient(135deg,#ff7ab8,#ff4ea1);color:#fff;font-weight:600;
+}
 .cal-cell .dot-marker{
   position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;
 }
@@ -782,6 +791,15 @@ body::after{
     </div>
 
     <div class="card">
+      <div class="card-title"><span class="icon">❤️</span>爱爱记录</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <input type="date" id="loveDate" style="flex:1;min-width:130px;padding:8px;border:1.5px solid rgba(255,122,184,0.10);border-radius:10px;font-size:13px;">
+        <button class="btn btn-primary" id="addLoveBtn" style="flex-shrink:0;">❤️ 记录</button>
+      </div>
+      <div id="loveList"></div>
+    </div>
+
+    <div class="card">
       <div class="card-title"><span class="icon">📅</span>经期日历</div>
       <div id="periodCalendar"></div>
       <div class="cal-legend">
@@ -789,6 +807,7 @@ body::after{
         <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.25);"></div>预测期</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.3);border:2px solid #ffb347;"></div>排卵日</div>
         <div class="item"><div class="swatch" style="background:rgba(255,179,71,0.1);"></div>排卵期</div>
+        <div class="item"><div class="swatch" style="text-align:center;font-size:12px;line-height:20px;background:transparent;">❤️</div>爱爱</div>
         <div class="item"><div class="swatch" style="background:rgba(94,234,212,0.15);border:1px solid var(--pink-300);"></div>今天</div>
       </div>
     </div>
@@ -1447,6 +1466,7 @@ function clearAllPeriod(){
   if(!confirm('确定清空全部生理周期记录吗？此操作不可恢复！')) return;
   DB.set('period', {current:null, history:[]});
   DB.set('symptoms', {});
+  DB.set('loveLog', []);
   toast('生理周期记录已清空');
   renderPeriod();
   renderHome();
@@ -1567,6 +1587,8 @@ function renderPeriod(){
   document.querySelectorAll('.symptom-tag').forEach(t=>{
     t.classList.toggle('active', selected.includes(t.dataset.s));
   });
+  initLoveDate();
+  renderLoveList();
   renderPeriodCalendar();
 }
 
@@ -1657,6 +1679,10 @@ function buildCalendar(containerId, year, month, markers, opts){
       else if(marker.type === 'period-sport') classes += ' period sport';
       else if(marker.type === 'ovulation-day') classes += ' ovulation-day';
       else if(marker.type === 'ovulation-period') classes += ' ovulation-period';
+      else if(marker.type === 'love') classes += ' love';
+      
+      // 叠加爱爱心形标记
+      if(marker.love && marker.type !== 'love') classes += ' love';
       
       if(marker.type === 'sport' || marker.type === 'period-sport'){
         // 运动日历：显示运动名称 + 时长（限制显示，防止撑高格子）
@@ -1672,6 +1698,11 @@ function buildCalendar(containerId, year, month, markers, opts){
         inner = `<span style="font-size:10px;font-weight:700;">${d}</span><span style="font-size:8px;">卵</span>`;
       } else if(marker.duration) {
         inner = `<span>${d}</span><span style="font-size:8px;opacity:0.8;">${marker.duration}'</span>`;
+      }
+      
+      // 添加爱爱心形
+      if(marker.love || marker.type === 'love'){
+        inner += `<span class="love-mark">❤️</span>`;
       }
     }
     
@@ -1753,7 +1784,101 @@ function getPeriodMarkers(){
     markers[ovKey] = {type:'ovulation-day'};
   }
   
+  // 爱爱记录标记
+  const loveRecords = DB.get('loveLog', []);
+  loveRecords.forEach(ts=>{
+    const d = new Date(ts);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if(markers[key]){
+      // 已有经期/排卵等标记，叠加爱爱心形
+      markers[key].love = true;
+    } else {
+      markers[key] = {type:'love'};
+    }
+  });
+  
   return markers;
+}
+
+// ========== 爱爱记录 ==========
+let loveListPage = 1;
+const LOVE_PER_PAGE = 5;
+
+function initLoveDate(){
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,'0');
+  const d = String(today.getDate()).padStart(2,'0');
+  const el = document.getElementById('loveDate');
+  if(el && !el.value) el.value = `${y}-${m}-${d}`;
+}
+function addLoveRecord(){
+  const dateStr = document.getElementById('loveDate').value;
+  if(!dateStr){ toast('请选择日期'); return; }
+  const ts = new Date(dateStr+'T12:00:00').getTime();
+  const log = DB.get('loveLog', []);
+  // 去重（同一天只记一次）
+  if(log.some(t => new Date(t).toDateString() === new Date(ts).toDateString())){
+    toast('该日期已记录 ❤️'); return;
+  }
+  log.push(ts);
+  DB.set('loveLog', log);
+  toast('爱爱记录已添加 ❤️');
+  renderLoveList();
+  renderPeriodCalendar();
+}
+function delLoveRecord(idx){
+  if(!confirm('确定删除这条爱爱记录吗？')) return;
+  const log = DB.get('loveLog', []);
+  log.splice(idx, 1);
+  DB.set('loveLog', log);
+  toast('记录已删除');
+  renderLoveList();
+  renderPeriodCalendar();
+}
+function renderLoveList(){
+  const el = document.getElementById('loveList');
+  const log = DB.get('loveLog', []).sort((a,b)=>b-a); // 倒序
+  if(!log.length){
+    el.innerHTML = '<div class="empty" style="padding:12px;">还没有爱爱记录 ❤️</div>';
+    return;
+  }
+  const totalPages = Math.ceil(log.length / LOVE_PER_PAGE);
+  if(loveListPage > totalPages) loveListPage = totalPages;
+  if(loveListPage < 1) loveListPage = 1;
+  const start = (loveListPage - 1) * LOVE_PER_PAGE;
+  const pageLog = log.slice(start, start + LOVE_PER_PAGE);
+
+  let html = pageLog.map((ts, i)=>{
+    const realIdx = log.length - 1 - (start + i); // 原始数组中的索引（正序）
+    // 由于 log 已排序，需要找原始索引
+    const origLog = DB.get('loveLog', []);
+    const origIdx = origLog.indexOf(ts);
+    const d = new Date(ts);
+    const dStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    const now = new Date();
+    const diffDays = Math.floor((now - d) / 86400000);
+    const dayLabel = diffDays === 0 ? '今天' : `${diffDays}天前`;
+    return `<div class="history-item"><div style="flex:1;"><div class="date">❤️ ${dStr} · ${dayLabel}</div></div><button class="del-btn" onclick="delLoveRecord(${origIdx})" title="删除">✕</button></div>`;
+  }).join('');
+
+  if(totalPages > 1){
+    html += '<div class="pager">';
+    html += `<button class="pager-btn" onclick="loveListGoPage(${loveListPage-1})" ${loveListPage<=1?'disabled':''}>‹</button>`;
+    for(let p=1; p<=totalPages; p++){
+      html += `<button class="pager-btn ${p===loveListPage?'active':''}" onclick="loveListGoPage(${p})">${p}</button>`;
+    }
+    html += `<button class="pager-btn" onclick="loveListGoPage(${loveListPage+1})" ${loveListPage>=totalPages?'disabled':''}>›</button>`;
+    html += `<span class="pager-info">共 ${log.length} 条</span>`;
+    html += '</div>';
+  } else {
+    html += `<div class="pager-info" style="text-align:center;margin-top:8px;">共 ${log.length} 条</div>`;
+  }
+  el.innerHTML = html;
+}
+function loveListGoPage(p){
+  loveListPage = p;
+  renderLoveList();
 }
 
 function renderPeriodCalendar(){
@@ -3077,6 +3202,7 @@ document.getElementById('periodStartBtn').onclick = periodStart;
 document.getElementById('periodEndBtn').onclick = periodEnd;
 document.getElementById('savePeriodSettingsBtn').onclick = savePeriodSettings;
 document.getElementById('addManualPeriodBtn').onclick = addManualPeriod;
+document.getElementById('addLoveBtn').onclick = addLoveRecord;
 document.getElementById('clearAllPeriodBtn').onclick = clearAllPeriod;
 document.getElementById('clearTodaySportBtn').onclick = clearTodaySport;
 document.getElementById('toggleManualSportBtn').onclick = toggleManualSportPanel;
